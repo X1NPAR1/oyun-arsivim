@@ -17,6 +17,7 @@ function g(
     installDir: "",
     executable: null,
     launchUri: "",
+    launchArgs: null,
     sizeBytes: null,
     lastPlayed,
     installed,

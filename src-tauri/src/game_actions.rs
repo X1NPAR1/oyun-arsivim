@@ -34,13 +34,30 @@ pub fn uninstall_action(game: &Game) -> PlatformAction {
                 game.title
             ),
         },
-        Platform::Manual => PlatformAction::Guided {
-            uri: WINDOWS_APPS.to_owned(),
-            hint: format!(
+        Platform::Gog => client(game, "goggalaxy://", "GOG Galaxy"),
+        Platform::Ubisoft => client(game, "uplay://", "Ubisoft Connect"),
+        Platform::Battlenet => client(game, "battlenet://", "Battle.net"),
+        Platform::Ea => client(game, "origin2://library/open", "EA app"),
+        Platform::Manual | Platform::Rockstar | Platform::Riot | Platform::Xbox => {
+            PlatformAction::Guided {
+                uri: WINDOWS_APPS.to_owned(),
+                hint: format!(
                 "Windows \"Yüklü uygulamalar\" listesinde \"{}\" oyununu bulup kaldırabilirsin.",
                 game.title
             ),
-        },
+            }
+        }
+    }
+}
+
+/// Platform istemcisini açar ve kullanıcıya ne yapacağını anlatır.
+fn client(game: &Game, uri: &str, name: &str) -> PlatformAction {
+    PlatformAction::Guided {
+        uri: uri.to_owned(),
+        hint: format!(
+            "{name} açıldı; kütüphanede \"{}\" oyununu seçip işlemi oradan tamamla.",
+            game.title
+        ),
     }
 }
 
@@ -54,7 +71,16 @@ pub fn install_action(game: &Game) -> Option<PlatformAction> {
             PlatformAction::OpenUri(game.launch_uri.replace("action=launch", "action=install")),
         ),
         Platform::Epic => Some(PlatformAction::OpenUri(EPIC_LIBRARY.to_owned())),
-        Platform::Manual => None,
+        Platform::Gog => Some(client(game, "goggalaxy://", "GOG Galaxy")),
+        Platform::Ubisoft => Some(client(game, "uplay://", "Ubisoft Connect")),
+        Platform::Battlenet => Some(client(game, "battlenet://", "Battle.net")),
+        Platform::Ea => Some(client(game, "origin2://library/open", "EA app")),
+        // platform_id = paket aile adı (PFN): Microsoft Store sayfası açılır.
+        Platform::Xbox => Some(PlatformAction::OpenUri(format!(
+            "ms-windows-store://pdp/?PFN={}",
+            game.platform_id
+        ))),
+        Platform::Manual | Platform::Rockstar | Platform::Riot => None,
     }
 }
 
@@ -127,22 +153,21 @@ pub fn create_shortcut_in(
     icon: Option<&Path>,
 ) -> Result<PathBuf, ShortcutError> {
     let name = sanitize_file_name(&game.title);
-    match game.platform {
-        Platform::Manual => {
-            let exe = game.executable.as_deref().ok_or(ShortcutError::NoTarget)?;
-            let path = dir.join(format!("{name}.lnk"));
-            platform::write_lnk(&path, Path::new(exe), Path::new(&game.install_dir))?;
-            Ok(path)
-        }
-        Platform::Steam | Platform::Epic => {
-            if game.launch_uri.is_empty() {
-                return Err(ShortcutError::NoTarget);
-            }
-            let path = dir.join(format!("{name}.url"));
-            std::fs::write(&path, url_shortcut_content(&game.launch_uri, icon))?;
-            Ok(path)
-        }
+    // Platform adresi varsa .url (simgeli); yoksa exe için çalışma dizinli/argümanlı .lnk.
+    if !game.launch_uri.is_empty() {
+        let path = dir.join(format!("{name}.url"));
+        std::fs::write(&path, url_shortcut_content(&game.launch_uri, icon))?;
+        return Ok(path);
     }
+    let exe = game.executable.as_deref().ok_or(ShortcutError::NoTarget)?;
+    let path = dir.join(format!("{name}.lnk"));
+    platform::write_lnk(
+        &path,
+        Path::new(exe),
+        Path::new(&game.install_dir),
+        game.launch_args.as_deref(),
+    )?;
+    Ok(path)
 }
 
 pub fn desktop_dir() -> Result<PathBuf, ShortcutError> {
@@ -182,7 +207,12 @@ mod platform {
         }
     }
 
-    pub fn write_lnk(path: &Path, exe: &Path, workdir: &Path) -> Result<(), ShortcutError> {
+    pub fn write_lnk(
+        path: &Path,
+        exe: &Path,
+        workdir: &Path,
+        args: Option<&str>,
+    ) -> Result<(), ShortcutError> {
         // SAFETY: COM bu iş parçacığında başlatılıp kapatılır; tüm arabellekler çağrı boyunca yaşar.
         unsafe {
             let init = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
@@ -195,6 +225,11 @@ mod platform {
                     .map_err(|e| ShortcutError::Win(e.to_string()))?;
                 link.SetWorkingDirectory(PCWSTR(dir_w.as_ptr()))
                     .map_err(|e| ShortcutError::Win(e.to_string()))?;
+                if let Some(a) = args {
+                    let a_w: Vec<u16> = a.encode_utf16().chain(std::iter::once(0)).collect();
+                    link.SetArguments(PCWSTR(a_w.as_ptr()))
+                        .map_err(|e| ShortcutError::Win(e.to_string()))?;
+                }
                 link.SetIconLocation(PCWSTR(exe_w.as_ptr()), 0)
                     .map_err(|e| ShortcutError::Win(e.to_string()))?;
                 let file: IPersistFile =
@@ -218,7 +253,7 @@ mod platform {
     pub fn desktop_dir() -> Result<PathBuf, ShortcutError> {
         Err(ShortcutError::NoDesktop)
     }
-    pub fn write_lnk(_: &Path, _: &Path, _: &Path) -> Result<(), ShortcutError> {
+    pub fn write_lnk(_: &Path, _: &Path, _: &Path, _: Option<&str>) -> Result<(), ShortcutError> {
         Err(ShortcutError::Win("yalnız Windows".into()))
     }
 }
@@ -240,8 +275,9 @@ mod tests {
                 Platform::Epic => {
                     format!("com.epicgames.launcher://apps/ns%3Ai%3A{id}?action=launch&silent=true")
                 }
-                Platform::Manual => String::new(),
+                _ => String::new(),
             },
+            launch_args: None,
             size_bytes: None,
             last_played: None,
             installed: true,

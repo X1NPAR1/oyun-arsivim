@@ -53,11 +53,40 @@
 
 ## Xbox / Microsoft Store
 
-- **Tespit:** `Get-AppxPackage` eşdeğeri (WinRT `PackageManager`) + `MicrosoftGame.config` içeren paketler
-  ve `<sürücü>:\XboxGames\*\Content\MicrosoftGame.config`.
+- **Tespit:** WinRT `PackageManager.FindPackagesByUserSecurityId("")` (yönetici gerekmez); `InstalledPath` içinde
+  `MicrosoftGame.config` olan paketler oyundur. Ad: `ShellVisuals DefaultDisplayName`; logo: `Square480x480Logo` → `Square150x150Logo` → `StoreLogo` (ölçek varyantları).
 - **Başlatma:** `shell:AppsFolder\<PackageFamilyName>!<AppId>`.
 - **Sınırlama:** `WindowsApps` klasörü erişime kapalıdır; exe ikonu ve boyut alınamayabilir; bazı oyunlar
   "Game" kategorisinde işaretli değildir — `MicrosoftGame.config` olmayan paketler oyun sayılmaz.
+
+## Riot Games (Faz 7 — prompt listesinde yoktu, bu makinede VALORANT kurulu olduğu için eklendi)
+
+- **Tespit:** `%ProgramData%\Riot Games\Metadata\<ürün>.<hat>\<ürün>.<hat>.product_settings.yaml` →
+  `product_install_full_path`. Ürünler: valorant, league_of_legends, bacon (LoR), lion (2XKO); istemci ve TFT (LoL içinde) elenir.
+- **Başlatma:** `RiotClientInstalls.json` → `rc_default` istemcisi + `--launch-product=<ürün> --launch-patchline=<hat>`.
+- **Simge:** istemci değil, oyun klasöründeki kendi exe'si.
+
+## Rockstar Games Launcher
+
+- **Tespit:** `HKLM\SOFTWARE\WOW6432Node\Rockstar Games\<oyun>` → `InstallFolder` (Launcher, Social Club, SDK elenir).
+- **Başlatma:** klasördeki `Play*.exe`, yoksa kökteki en büyük exe. Steam/Epic sürümlerinde kayıt boştur → o platformlardan gelir.
+
+## Tekilleştirme ve klasör izleme (Faz 7)
+
+- Aynı kurulum klasörü birden fazla platformdan gelirse öncelik: Steam > Epic > GOG > Ubisoft > Battle.net > Riot > Rockstar > EA > Xbox > Elle.
+  Gerçek vaka: EA app'in Battlefield 1 kaydı Steam klasörünü gösteriyor → tek kayıt (Steam).
+- `notify` ile izlenen klasörler: Steam `steamapps` (tüm kütüphaneler), Epic manifestleri, Riot metadata. Yalnız manifest dosyaları
+  (`appmanifest_*.acf`, `*.item`, `*.product_settings.yaml`) tetikler; son olaydan 4 sn sonra tek tarama.
+
+## Doğrulama (Faz 7, bu makine)
+
+| Platform                   | Sonuç                                                                     |
+| -------------------------- | ------------------------------------------------------------------------- |
+| GOG / Ubisoft / Battle.net | Kurulu değil → boş liste; sahte kayıt defteriyle test edildi              |
+| EA app                     | Battlefield 1 kaydı bulundu → Steam kopyasıyla tekilleştirildi            |
+| Rockstar                   | RDR2 / GTA V kayıtlarında klasör yok (Steam/Epic) → doğru şekilde atlandı |
+| Riot                       | VALORANT bulundu, oyun simgesi exe'den                                    |
+| Xbox                       | Minecraft for Windows, Minecraft Launcher, Roblox; paket logoları         |
 
 ## Elle ekleme ve klasör tarama
 

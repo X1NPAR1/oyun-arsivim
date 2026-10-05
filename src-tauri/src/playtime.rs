@@ -238,6 +238,7 @@ mod tests {
     fn setup() -> (Connection, i64) {
         let mut conn = db::open_in_memory().unwrap();
         let g = DetectedGame {
+            launch_args: None,
             platform: Platform::Steam,
             platform_id: "730".into(),
             title: "CS2".into(),

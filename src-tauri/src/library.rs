@@ -20,6 +20,7 @@ pub struct Game {
     pub install_dir: String,
     pub executable: Option<String>,
     pub launch_uri: String,
+    pub launch_args: Option<String>,
     pub size_bytes: Option<i64>,
     pub last_played: Option<i64>,
     pub installed: bool,
@@ -51,7 +52,7 @@ pub enum LibraryError {
 }
 
 const SELECT: &str = "SELECT id, platform, platform_id, title, install_dir, executable, launch_uri,
-    size_bytes, last_played, installed, added_at, removed_at FROM games";
+    size_bytes, last_played, installed, added_at, removed_at, launch_args FROM games";
 
 fn row_to_game(row: &Row<'_>) -> rusqlite::Result<Game> {
     let platform: String = row.get(1)?;
@@ -68,6 +69,7 @@ fn row_to_game(row: &Row<'_>) -> rusqlite::Result<Game> {
         installed: row.get::<_, i64>(9)? != 0,
         added_at: row.get(10)?,
         removed_at: row.get(11)?,
+        launch_args: row.get(12)?,
     })
 }
 
@@ -117,8 +119,8 @@ pub fn sync(
             None => {
                 tx.execute(
                     "INSERT INTO games (platform, platform_id, title, install_dir, executable,
-                        launch_uri, size_bytes, last_played, installed, added_at)
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1, ?9)",
+                        launch_uri, size_bytes, last_played, installed, added_at, launch_args)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1, ?9, ?10)",
                     params![
                         game.platform.as_str(),
                         game.platform_id,
@@ -128,7 +130,8 @@ pub fn sync(
                         game.launch_uri,
                         size,
                         game.last_played,
-                        now
+                        now,
+                        game.launch_args
                     ],
                 )?;
                 report.added += 1;
@@ -141,7 +144,7 @@ pub fn sync(
                 tx.execute(
                     "UPDATE games SET title = ?2, install_dir = ?3, executable = ?4, launch_uri = ?5,
                         size_bytes = ?6, last_played = MAX(COALESCE(last_played, 0), COALESCE(?7, 0)),
-                        installed = 1, removed_at = NULL
+                        installed = 1, removed_at = NULL, launch_args = ?8
                      WHERE id = ?1",
                     params![
                         id,
@@ -150,7 +153,8 @@ pub fn sync(
                         game.executable,
                         game.launch_uri,
                         size,
-                        game.last_played
+                        game.last_played,
+                        game.launch_args
                     ],
                 )?;
             }
@@ -304,6 +308,7 @@ mod tests {
 
     fn game(platform: Platform, id: &str, title: &str) -> DetectedGame {
         DetectedGame {
+            launch_args: None,
             platform,
             platform_id: id.to_owned(),
             title: title.to_owned(),

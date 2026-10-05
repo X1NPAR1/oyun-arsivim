@@ -84,6 +84,15 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 | Hata ekranı (debug test anahtarı) | Mesaj + Tekrar dene + Günlüğü aç; süreç çökmedi; Tekrar dene günlükte yeniden deneme + yeni sonuç üretti |
 | Gerileme                          | Tepsi (18 MB), tek örnek, `--hidden` (pencere yok, 14 MB) çalışıyor                                      |
 
+### Faz 7 — 2026-10-06
+
+| Kontrol       | Sonuç                                                                                                                              |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| cargo test    | 84+ GEÇTİ (GOG/EA/Ubisoft/Battle.net/Rockstar sahte kayıt defteri, Riot metadata, Xbox config, tekilleştirme, gerçek notify olayı) |
+| Gerçek tarama | Steam 14, Epic 2, Riot 1 (VALORANT), Xbox 3, EA 1 (tekilleştirildi); toplam 20 kurulu                                              |
+| Arayüz        | Xbox ve Riot filtreleri, doğru simgeler (`review/faz-07/platformlar.png`)                                                          |
+| Bekleyen      | Yeni platformlardan gerçek oyun başlatma kullanıcıda doğrulanacak (test sırasında kullanıcının oyunları açılmadı)                  |
+
 ## Bulunan ve çözülen hatalar
 
 | #   | Faz | Hata                                                           | Regresyon koruması                                  | Çözüm                                                 |

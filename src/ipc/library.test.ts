@@ -16,6 +16,7 @@ function game(art: Partial<GameView["art"]>): GameView {
     installDir: "",
     executable: null,
     launchUri: "",
+    launchArgs: null,
     sizeBytes: null,
     lastPlayed: null,
     installed: true,

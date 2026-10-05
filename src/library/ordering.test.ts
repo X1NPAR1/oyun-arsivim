@@ -7,6 +7,7 @@ const base = {
   installDir: "",
   executable: null,
   launchUri: "",
+  launchArgs: null,
   sizeBytes: null,
   addedAt: 0,
   removedAt: null,

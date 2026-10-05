@@ -55,6 +55,28 @@ impl Serialize for CommandError {
 
 type CmdResult<T> = Result<T, CommandError>;
 
+/// Komut satırı argümanlarını böler; çift tırnak içindeki boşluklar korunur.
+pub fn split_args(s: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let mut quoted = false;
+    for c in s.chars() {
+        match c {
+            '"' => quoted = !quoted,
+            c if c.is_whitespace() && !quoted => {
+                if !cur.is_empty() {
+                    out.push(std::mem::take(&mut cur));
+                }
+            }
+            c => cur.push(c),
+        }
+    }
+    if !cur.is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
 pub fn now() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -99,6 +121,7 @@ pub fn run_scan(app: &AppHandle, state: &SharedState) -> CmdResult<SyncReport> {
         }
         let report = {
             let mut conn = state.db.lock().map_err(|_| CommandError::Lock)?;
+            let detected = detectors::dedupe(detected);
             let report = library::sync(&mut conn, &detected, &scanned, now())?;
             // Steam oynama sürelerini (yerel localconfig.vdf) her taramada tazele.
             if let Some(root) = detectors::steam::steam_root_from_registry() {
@@ -212,23 +235,26 @@ pub fn launch_game(state: State<'_, SharedState>, id: i64) -> CmdResult<()> {
             "oyun bu bilgisayarda kurulu değil".into(),
         ));
     }
-    match game.platform {
-        Platform::Manual => {
-            let exe = game
-                .executable
-                .ok_or_else(|| CommandError::Launch("exe yolu yok".into()))?;
-            let mut cmd = std::process::Command::new(&exe);
-            if !game.install_dir.is_empty() {
-                cmd.current_dir(&game.install_dir);
-            }
-            cmd.spawn()
-                .map_err(|e| CommandError::Launch(e.to_string()))?;
-        }
-        Platform::Steam | Platform::Epic => {
-            tauri_plugin_opener::open_url(&game.launch_uri, None::<&str>)
-                .map_err(|e| CommandError::Launch(e.to_string()))?;
-        }
+    // Platform adresi varsa (steam://, uplay://, shell:AppsFolder…) o açılır; yoksa exe çalıştırılır.
+    if !game.launch_uri.is_empty() {
+        tauri_plugin_opener::open_url(&game.launch_uri, None::<&str>)
+            .map_err(|e| CommandError::Launch(e.to_string()))?;
+        return Ok(());
     }
+    let exe = game.executable.ok_or_else(|| {
+        CommandError::Launch(
+            "bu oyunun başlatma bilgisi yok; platformun kendi uygulamasından başlat".into(),
+        )
+    })?;
+    let mut cmd = std::process::Command::new(&exe);
+    if let Some(args) = game.launch_args.as_deref() {
+        cmd.args(split_args(args));
+    }
+    if !game.install_dir.is_empty() && std::path::Path::new(&game.install_dir).is_dir() {
+        cmd.current_dir(&game.install_dir);
+    }
+    cmd.spawn()
+        .map_err(|e| CommandError::Launch(e.to_string()))?;
     Ok(())
 }
 

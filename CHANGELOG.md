@@ -5,6 +5,15 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.7.0] - 2026-10-06
+
+### Eklendi
+
+- GOG Galaxy, EA app, Ubisoft Connect, Battle.net, Rockstar Games, Riot Games (VALORANT, League of Legends…) ve Xbox / Microsoft Store oyunlarının otomatik bulunması.
+- Aynı oyun birden fazla platformdan bulunursa tek kayıt gösterilir.
+- Yeni kurulan veya silinen oyunlar kütüphaneye kendiliğinden yansır (platform klasörleri izlenir).
+- Xbox oyunlarında resmi paket logoları, Riot oyunlarında oyunun kendi simgesi.
+
 ## [0.6.0] - 2026-10-06
 
 ### Eklendi
