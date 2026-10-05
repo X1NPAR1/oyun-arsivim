@@ -13,6 +13,7 @@ mod settings;
 mod startup;
 mod tracker;
 mod tray;
+mod watcher;
 mod window_style;
 
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -131,6 +132,8 @@ fn begin_startup(app: tauri::AppHandle, hidden: bool) {
                 }
                 // Oyun süresi takibi pencereden bağımsız çalışır (tepsideyken de).
                 tracker::spawn(app.clone(), state.clone(), data.join("perf-state.json"));
+                // Yeni kurulan / silinen oyunlar kendiliğinden yansısın.
+                watcher::spawn(app.clone(), state.clone());
                 if !hidden {
                     // Splash görünmeden ana pencere açılırsa açılış ekranı yalnız bir an yanıp söner.
                     let started = std::time::Instant::now();

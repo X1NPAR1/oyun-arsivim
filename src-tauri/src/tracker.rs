@@ -52,7 +52,7 @@ impl GameMatcher {
                         exes.insert(norm(exe), g.id);
                     }
                 }
-                Platform::Steam | Platform::Epic => {
+                _ => {
                     let mut dir = norm(g.install_dir.trim_end_matches(['\\', '/']));
                     // "C:" gibi kök klasörler her şeyi eşlerdi; güvenlik için reddedilir.
                     if dir.len() > 3 {
@@ -378,6 +378,7 @@ mod tests {
             install_dir: dir.into(),
             executable: exe.map(Into::into),
             launch_uri: String::new(),
+            launch_args: None,
             size_bytes: None,
             last_played: None,
             installed: true,
@@ -435,6 +436,7 @@ mod tests {
     fn setup() -> (Connection, i64) {
         let mut conn = db::open_in_memory().unwrap();
         let g = DetectedGame {
+            launch_args: None,
             platform: Platform::Steam,
             platform_id: "730".into(),
             title: "CS2".into(),

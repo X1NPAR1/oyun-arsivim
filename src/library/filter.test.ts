@@ -11,6 +11,7 @@ function g(id: number, title: string, platform: GameView["platform"], installed 
     installDir: "",
     executable: null,
     launchUri: "",
+    launchArgs: null,
     sizeBytes: null,
     lastPlayed: null,
     installed,

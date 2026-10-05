@@ -181,21 +181,44 @@ impl ArtworkStore {
                 fetcher,
             );
         }
-        // Elle eklenen ve Epic oyunlarında exe ikonu logo olarak kullanılır.
-        if let Some(exe) = game
-            .executable
-            .as_deref()
-            .filter(|_| game.platform != Platform::Steam)
-        {
+        // Steam dışındaki platformlarda logo: Xbox paketinin resmi logosu, diğerlerinde oyunun exe ikonu.
+        if game.platform != Platform::Steam {
             let target = self.file(game.platform, &key, Kind::Icon);
-            if !target.is_file() && Path::new(exe).is_file() {
-                match crate::icon::extract_png(Path::new(exe), &target) {
-                    Ok(()) => changed = true,
-                    Err(err) => tracing::debug!(exe, %err, "exe ikonu çıkarılamadı"),
-                }
+            if !target.is_file() {
+                changed |= self.make_icon(game, &target);
             }
         }
         changed
+    }
+
+    fn make_icon(&self, game: &Game, target: &Path) -> bool {
+        let dir = Path::new(&game.install_dir);
+        if game.platform == Platform::Xbox {
+            return match xbox_logo(dir).and_then(|src| image::open(src).ok()) {
+                Some(img) => img
+                    .save_with_format(target, image::ImageFormat::Png)
+                    .is_ok(),
+                None => false,
+            };
+        }
+        // Riot'ta `executable` istemcidir (Riot logosu); oyunun kendi exe'si klasörde aranır.
+        let exe = match game.platform {
+            Platform::Riot => crate::detectors::regplatforms::pick_main_exe(dir),
+            _ => game
+                .executable
+                .as_deref()
+                .map(PathBuf::from)
+                .filter(|p| p.is_file())
+                .or_else(|| crate::detectors::regplatforms::pick_main_exe(dir)),
+        };
+        let Some(exe) = exe else { return false };
+        match crate::icon::extract_png(&exe, target) {
+            Ok(()) => true,
+            Err(err) => {
+                tracing::debug!(exe = %exe.display(), %err, "exe ikonu çıkarılamadı");
+                false
+            }
+        }
     }
 
     /// Tam ekran sahne için 16:9 görsel: mağazanın ilk ekran görüntüsü (1920×1080). Hero görselleri
@@ -326,6 +349,55 @@ impl ArtworkStore {
     }
 }
 
+/// Xbox paketinin en büyük resmi logosu: MicrosoftGame.config → Square480x480Logo, Square150x150Logo,
+/// StoreLogo. Dosya yoksa ölçek varyantları (`Logo.scale-200.png`) arasından en büyüğü seçilir.
+pub fn xbox_logo(dir: &Path) -> Option<PathBuf> {
+    let config = std::fs::read_to_string(dir.join("MicrosoftGame.config")).ok()?;
+    ["Square480x480Logo", "Square150x150Logo", "StoreLogo"]
+        .iter()
+        .find_map(|attr| {
+            let rel = crate::detectors::xbox::xml_attr(&config, "ShellVisuals", attr)?;
+            let path = dir.join(rel.replace('/', "\\"));
+            if path.is_file() {
+                return Some(path);
+            }
+            let stem = path.file_stem()?.to_string_lossy().to_lowercase();
+            std::fs::read_dir(path.parent()?)
+                .ok()?
+                .flatten()
+                .map(|e| e.path())
+                .filter(|p| {
+                    p.file_name().is_some_and(|n| {
+                        n.to_string_lossy()
+                            .to_lowercase()
+                            .starts_with(&format!("{stem}."))
+                    })
+                })
+                .max_by_key(|p| std::fs::metadata(p).map(|m| m.len()).unwrap_or(0))
+        })
+}
+
+#[cfg(test)]
+mod xbox_logo_tests {
+    use super::*;
+
+    #[test]
+    fn picks_largest_declared_logo_or_scale_variant() {
+        let t = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(t.path().join("Assets")).unwrap();
+        std::fs::write(
+            t.path().join("MicrosoftGame.config"),
+            r#"<ShellVisuals Square480x480Logo="Assets/Large.png" StoreLogo="Assets/Store.png"/>"#,
+        )
+        .unwrap();
+        std::fs::write(t.path().join("Assets/Large.scale-100.png"), vec![0u8; 10]).unwrap();
+        std::fs::write(t.path().join("Assets/Large.scale-400.png"), vec![0u8; 40]).unwrap();
+        let p = xbox_logo(t.path()).unwrap();
+        assert!(p.ends_with("Large.scale-400.png"));
+        assert!(xbox_logo(&t.path().join("yok")).is_none());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -360,6 +432,7 @@ mod tests {
             install_dir: String::new(),
             executable: None,
             launch_uri: String::new(),
+            launch_args: None,
             size_bytes: None,
             last_played: None,
             installed: true,
@@ -470,6 +543,7 @@ mod store_fallback_tests {
             install_dir: String::new(),
             executable: None,
             launch_uri: String::new(),
+            launch_args: None,
             size_bytes: None,
             last_played: None,
             installed: true,

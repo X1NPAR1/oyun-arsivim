@@ -1,6 +1,16 @@
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 
-export type Platform = "steam" | "epic" | "manual";
+export type Platform =
+  | "steam"
+  | "epic"
+  | "gog"
+  | "ea"
+  | "ubisoft"
+  | "battlenet"
+  | "rockstar"
+  | "riot"
+  | "xbox"
+  | "manual";
 
 /** Rust `artwork::Artwork` — yerel önbellek dosya yolları. */
 export interface Artwork {
@@ -31,6 +41,7 @@ export interface GameView {
   installDir: string;
   executable: string | null;
   launchUri: string;
+  launchArgs: string | null;
   sizeBytes: number | null;
   lastPlayed: number | null;
   installed: boolean;
@@ -52,6 +63,13 @@ export const LIBRARY_CHANGED_EVENT = "library://changed";
 export const PLATFORM_LABELS: Record<Platform, string> = {
   steam: "Steam",
   epic: "Epic Games",
+  gog: "GOG",
+  ea: "EA app",
+  ubisoft: "Ubisoft Connect",
+  battlenet: "Battle.net",
+  rockstar: "Rockstar",
+  riot: "Riot Games",
+  xbox: "Xbox",
   manual: "Elle eklendi",
 };
 

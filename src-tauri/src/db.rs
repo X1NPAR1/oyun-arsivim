@@ -49,6 +49,8 @@ const MIGRATIONS: &[&str] = &[
         game_id INTEGER PRIMARY KEY REFERENCES games(id) ON DELETE CASCADE,
         profile TEXT NOT NULL
     );",
+    // v5 — exe ile verilecek başlatma argümanları (ör. Riot istemcisi)
+    "ALTER TABLE games ADD COLUMN launch_args TEXT;",
 ];
 
 #[derive(Debug, thiserror::Error)]

@@ -35,6 +35,10 @@ impl EpicDetector {
         Self { manifests_dir }
     }
 
+    pub fn manifests_dir(&self) -> Option<&std::path::Path> {
+        self.manifests_dir.as_deref()
+    }
+
     pub fn system_default() -> Self {
         let dir = std::env::var_os("ProgramData")
             .map(PathBuf::from)
@@ -75,6 +79,7 @@ pub fn parse_manifest(text: &str) -> Option<DetectedGame> {
             .into_owned()
     });
     Some(DetectedGame {
+        launch_args: None,
         platform: Platform::Epic,
         platform_id: app_name,
         title: title.trim().to_owned(),

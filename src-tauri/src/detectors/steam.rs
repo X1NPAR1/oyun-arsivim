@@ -58,7 +58,11 @@ impl SteamDetector {
         Self::new(steam_root_from_registry())
     }
 
-    fn library_paths(&self, root: &Path) -> Vec<PathBuf> {
+    pub fn root(&self) -> Option<&Path> {
+        self.root.as_deref()
+    }
+
+    pub fn library_paths(&self, root: &Path) -> Vec<PathBuf> {
         let mut paths = vec![root.to_path_buf()];
         let file = root.join("steamapps").join("libraryfolders.vdf");
         match std::fs::read_to_string(&file).map(|t| vdf::parse(&t)) {
@@ -141,6 +145,7 @@ pub fn parse_manifest(text: &str, library: &Path) -> Option<DetectedGame> {
         .join("common")
         .join(app.str("installdir").unwrap_or(&name));
     Some(DetectedGame {
+        launch_args: None,
         platform: Platform::Steam,
         launch_uri: format!("steam://rungameid/{appid}"),
         platform_id: appid,

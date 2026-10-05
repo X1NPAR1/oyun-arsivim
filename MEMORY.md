@@ -2,10 +2,10 @@
 
 ## Sıradaki adım
 
-Faz 7 — Diğer dedektörler (GOG, EA, Ubisoft, Battle.net, Xbox) + klasör izleme (yeni kurulan oyun otomatik).
-Sonra: SteamGridDB/yedek kapak, oyun detay sayfası (paylaşılan öğe geçişi, dinamik renk), save yedekleme,
-öneriler + komut paleti, i18n, otomatik güncelleme, optimizasyon (RAM: açık 362 MB / tepside 18 MB → hedef <150 / <10).
-**Kullanıcı doğrulaması bekleyen:** yönetici gerektiren 3 ayar + bekleme belleği (UAC).
+Faz 8 — Oyun detay sayfası: tam ekran sahne, paylaşılan öğe geçişi (kart → detay), dinamik vurgu rengi (kapaktan),
+oyun istatistikleri/oturumlar, performans profili, notlar, görsel değiştirme. Ardından: SteamGridDB + yedek kapak,
+save yedekleme, öneriler + komut paleti, i18n, otomatik güncelleme, optimizasyon (RAM).
+**Kullanıcı doğrulaması bekleyen:** UAC ayarları; yeni platformlardan (Riot/Xbox/GOG/Ubisoft/Battle.net) gerçek oyun başlatma.
 
 ## Kararlar (gerekçeli)
 
@@ -20,6 +20,12 @@ Sonra: SteamGridDB/yedek kapak, oyun detay sayfası (paylaşılan öğe geçişi
 | 2026-10-05 | NSIS Türkçe+İngilizce, dil seçicili; WebView2 bootstrapper                                                                                             | Küçük kurulum; WebView2 olmayan sistemde otomatik kurulum                                                                                     |
 | 2026-10-05 | CSP katı (`default-src 'self'`), yalnız `core:default` + `opener:default`                                                                              | En az yetki; ihtiyaç oldukça faz faz açılacak                                                                                                 |
 | 2026-10-05 | Release profili `opt-level = "s"`, LTO, strip                                                                                                          | Kurulum boyutu hedefi (ilk build: NSIS 1.18 MB)                                                                                               |
+| 2026-10-06 | Kayıt defteri dedektörleri `RegReader` soyutlamasıyla (gerçek: winreg, test: bellek içi)                                                               | GOG/Ubisoft/Battle.net bu makinede yok; fixture testleri gerçek kayıt yapısını taklit eder                                                    |
+| 2026-10-06 | Riot ve Rockstar eklendi (prompt listesinde yoktu)                                                                                                     | Kullanıcının makinesinde VALORANT ve Rockstar Launcher var                                                                                    |
+| 2026-10-06 | Xbox: WinRT PackageManager + `MicrosoftGame.config`; `shell:AppsFolder\PFN!AppId`                                                                      | PowerShell `Get-AppxPackage` çağırmak yavaş; WinRT doğrudan ve yönetici gerektirmez                                                           |
+| 2026-10-06 | `launch_args` alanı (migration v5); genel başlatma kuralı: URI → aksi hâlde exe + argüman + çalışma dizini                                             | Riot istemcisi URI değil argümanla başlatılır                                                                                                 |
+| 2026-10-06 | Tekilleştirme: aynı kurulum klasörü → `Platform::dedupe_rank` önceliği                                                                                 | EA app'in Battlefield 1 kaydı Steam klasörünü gösteriyordu                                                                                    |
+| 2026-10-06 | `notify` klasör izleme, yalnız manifest dosyaları, 4 sn sessizlik sonrası tek tarama                                                                   | Kurulum binlerce dosya olayı üretir                                                                                                           |
 | 2026-10-06 | Açılış: ayrı hafif splash sayfası (React'siz, 2,5 KB JS); Rust adımları ağırlıklı gerçek ilerleme olaylarıyla; son durum `StatusState`'te saklanır     | Splash, WebView2 başlatması nedeniyle ~1,2–1,9 sn'de görünür; o ana kadar gönderilen olaylar kaçmasın diye `splash_ready` son durumu döndürür |
 | 2026-10-06 | Ana pencere splash görünür olmadan açılmaz (en geç 4 sn); splash sayaç %100'e ulaşıp en az 0,9 sn görününce solar                                      | Splash'in bir an yanıp sönmesi engellendi; ilerleme yapay yavaşlatılmaz (prompt: sahte ilerleme yok)                                          |
 | 2026-10-06 | Açılış hatası uygulamayı kapatmaz: splash'te mesaj + Tekrar dene + Günlüğü aç                                                                          | Önceden `setup` içindeki `?` uygulamayı sessizce sonlandırabiliyordu                                                                          |

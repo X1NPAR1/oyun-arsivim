@@ -55,8 +55,11 @@ pub struct ErrorEvent {
 /// Adım ağırlıkları (toplam 100). Görsel adımı yalnız ilk açılışta uzun sürer.
 const W_DB: f64 = 10.0;
 const W_SETTINGS: f64 = 5.0;
-const W_STEAM: f64 = 25.0;
-const W_EPIC: f64 = 15.0;
+const W_STEAM: f64 = 20.0;
+const W_EPIC: f64 = 10.0;
+/// GOG, EA, Ubisoft, Battle.net, Rockstar, Riot, Xbox toplamı.
+const W_OTHERS: f64 = 10.0;
+const OTHER_PLATFORMS: f64 = 7.0;
 const W_PLAYTIME: f64 = 10.0;
 const W_ARTWORK: f64 = 30.0;
 const W_PERF: f64 = 5.0;
@@ -131,6 +134,25 @@ pub fn run(app: &AppHandle, data_dir: &Path) -> Result<SharedState, String> {
         let (message, weight) = match detector.platform() {
             Platform::Steam => ("Steam kütüphanesi taranıyor...", W_STEAM),
             Platform::Epic => ("Epic Games oyunları bulunuyor...", W_EPIC),
+            Platform::Gog => ("GOG oyunları aranıyor...", W_OTHERS / OTHER_PLATFORMS),
+            Platform::Ea => ("EA app oyunları aranıyor...", W_OTHERS / OTHER_PLATFORMS),
+            Platform::Ubisoft => (
+                "Ubisoft Connect oyunları aranıyor...",
+                W_OTHERS / OTHER_PLATFORMS,
+            ),
+            Platform::Battlenet => (
+                "Battle.net oyunları aranıyor...",
+                W_OTHERS / OTHER_PLATFORMS,
+            ),
+            Platform::Rockstar => ("Rockstar oyunları aranıyor...", W_OTHERS / OTHER_PLATFORMS),
+            Platform::Riot => (
+                "Riot Games oyunları aranıyor...",
+                W_OTHERS / OTHER_PLATFORMS,
+            ),
+            Platform::Xbox => (
+                "Xbox / Microsoft Store oyunları aranıyor...",
+                W_OTHERS / OTHER_PLATFORMS,
+            ),
             Platform::Manual => ("Oyunlar taranıyor...", 0.0),
         };
         match r.step(message, weight, || detector.detect()) {
@@ -146,6 +168,7 @@ pub fn run(app: &AppHandle, data_dir: &Path) -> Result<SharedState, String> {
 
     let mut conn = conn;
     r.step("Oyun süreleri alınıyor...", W_PLAYTIME, || {
+        let detected = detectors::dedupe(std::mem::take(&mut detected));
         if let Err(err) = library::sync(&mut conn, &detected, &scanned, now()) {
             tracing::warn!(%err, "kütüphane senkronlanamadı");
         }
@@ -195,8 +218,9 @@ mod tests {
 
     #[test]
     fn weights_sum_to_hundred() {
-        let total = W_DB + W_SETTINGS + W_STEAM + W_EPIC + W_PLAYTIME + W_ARTWORK + W_PERF;
-        assert!((total - 100.0).abs() < f64::EPSILON);
+        let total =
+            W_DB + W_SETTINGS + W_STEAM + W_EPIC + W_OTHERS + W_PLAYTIME + W_ARTWORK + W_PERF;
+        assert!((total - 100.0).abs() < 1e-9);
     }
 
     #[test]

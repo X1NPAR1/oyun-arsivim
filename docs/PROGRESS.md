@@ -84,7 +84,14 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 
 ## Faz 7 — Elle oyun ekleme ⬜
 
-## Faz 8 — Diğer dedektörler, tekilleştirme, izleme ⬜
+## Faz 7 — Diğer platformlar, tekilleştirme, klasör izleme ✅ (v0.7.0)
+
+- [x] GOG, EA app, Ubisoft Connect, Battle.net, Rockstar (kayıt defteri), Riot (metadata), Xbox (WinRT paketleri)
+- [x] Tekilleştirme (platform önceliği); gerçek vaka: EA Battlefield 1 ↔ Steam
+- [x] Klasör izleme: yeni kurulan/silinen oyun kendiliğinden yansır
+- [x] Platform simgeleri: Riot oyun exe'si, Xbox paket logosu
+- [x] Genel başlatma (URI / exe + argüman), argümanlı kısayol
+- [ ] Kullanıcı doğrulaması: yeni platformlardan gerçek oyun başlatma
 
 ## Faz 9 — Görsel sistemi (SteamGridDB, yedek kapak) ⬜
 
