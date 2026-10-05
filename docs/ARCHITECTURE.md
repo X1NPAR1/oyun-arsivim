@@ -54,6 +54,14 @@
   `playtime_hourly`, `playtime_sessions`, `open_log_dir`, `window_backdrop`, `app_info`.
 - Arka plan iş parçacıkları: açılış taraması + görsel indirme, `oyun-takipci` (süre takibi).
 
+## Faz 5 — Performans Merkezi
+
+- `perf/monitor` (sysinfo + PDH), `perf/tweaks` (beyaz liste, SPI, `--admin-task`), `elevate` (ShellExecuteEx runas),
+  `perf/memory`, `perf/power` (Power API), `perf/processes` (öncelik, kapatma, korumalı liste), `perf/boost` (profil uygula/geri al).
+- Tablo: `perf_profiles(game_id, profile JSON)` (migration v4). Durum dosyası: `<yerel veri>/perf-state.json`.
+- Komutlar: `perf_snapshot`, `perf_tweaks`, `perf_set_tweak`, `perf_restore_defaults`, `perf_clean_ram`, `perf_purge_standby`,
+  `power_overview`, `power_set`, `perf_profile_get/set/recommended`, `perf_profiled_games`, `perf_close_suggestions`.
+
 ## Olaylar
 
 `startup://progress {percent, stepKey, message}` · `startup://error {message, logPath}` · `scan://progress` ·

@@ -2,10 +2,12 @@ mod artwork;
 mod commands;
 mod db;
 mod detectors;
+mod elevate;
 mod game_actions;
 mod icon;
 mod library;
 mod logging;
+mod perf;
 mod playtime;
 mod settings;
 mod tracker;
@@ -77,6 +79,13 @@ fn close_to_tray_enabled(app: &tauri::AppHandle) -> bool {
         .unwrap_or(true)
 }
 
+/// `--admin-task <id> <on|off>` ile başlatıldıysa görevi yapıp çıkış kodunu döndürür.
+pub fn handle_admin_task() -> Option<i32> {
+    let args: Vec<String> = std::env::args().collect();
+    let i = args.iter().position(|a| a == "--admin-task")?;
+    Some(perf::tweaks::run_admin_task(&args[i + 1..]))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
@@ -95,6 +104,7 @@ pub fn run() {
             let logs = logging::log_dir(&data);
             app.manage(LogGuard(logging::init(&logs)));
             app.manage(LogDir(logs));
+            app.manage(perf::monitor::PerfMonitor::new());
             app.manage(BackdropState(Mutex::new(Backdrop::None)));
             app.manage(tray::QuitFlag(AtomicBool::new(false)));
             let state = init_state(app)?;
@@ -102,7 +112,11 @@ pub fn run() {
             app.manage(state.clone());
             tray::build(app.handle())?;
             // Oyun süresi takibi pencereden bağımsız çalışır (tepsideyken de).
-            tracker::spawn(app.handle().clone(), state.clone());
+            tracker::spawn(
+                app.handle().clone(),
+                state.clone(),
+                data.join("perf-state.json"),
+            );
 
             // Windows açılışında `--hidden` ile başlatıldıysa pencere açılmaz, yalnız tepside çalışır.
             if !tray::started_hidden() {
@@ -136,6 +150,19 @@ pub fn run() {
             commands::open_game_folder,
             commands::playtime_hourly,
             commands::playtime_sessions,
+            perf::commands::perf_snapshot,
+            perf::commands::perf_tweaks,
+            perf::commands::perf_set_tweak,
+            perf::commands::perf_restore_defaults,
+            perf::commands::perf_clean_ram,
+            perf::commands::perf_purge_standby,
+            perf::commands::power_overview,
+            perf::commands::power_set,
+            perf::commands::perf_profile_get,
+            perf::commands::perf_profile_set,
+            perf::commands::perf_profiled_games,
+            perf::commands::perf_profile_recommended,
+            perf::commands::perf_close_suggestions,
         ])
         .build(tauri::generate_context!());
 

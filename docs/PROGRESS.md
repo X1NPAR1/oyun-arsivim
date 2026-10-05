@@ -58,7 +58,16 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] Dönen günlük dosyaları + "Günlük klasörünü aç"
 - [x] Testler: Rust 49, arayüz 40; gerçek takip uçtan uca testi
 
-## Faz 5 — Performans Merkezi ⬜
+## Faz 5 — Performans Merkezi ✅ (v0.5.0)
+
+- [x] Canlı CPU (çekirdek başına), RAM, GPU kullanımı ve VRAM; en çok bellek kullanan süreçler
+- [x] RAM temizliği (çalışma kümesi) + otomatik temizlik (eşik) + bekleme belleği (yönetici)
+- [x] Güç planı seçimi (kopyalar tekilleştirilir, yeni plan oluşturulmaz)
+- [x] 10 Windows oyun ayarı (Oyun Modu, Game DVR, Game Bar, FSO, fare ivmesi, animasyonlar, bildirimler, HAGS, ağ kısıtlaması, MMCSS); önerilenleri uygula, varsayılanlara dön
+- [x] Oyuna özel performans modu: öncelik, güç planı, RAM temizliği, bildirim susturma, uygulama kapatma; otomatik uygula/geri al, çökme kurtarma
+- [x] Sağ tık → "Performans modu…" kısayolu
+- [x] Gerçek sistem testleri: 7 kullanıcı ayarı aç/kapa/geri al, güç planı uygula/geri al, öncelik, uygulama kapatma, uçtan uca profil (tepside)
+- [ ] Kullanıcı doğrulaması: UAC gerektiren 3 ayar + bekleme belleği
 
 ## Faz 5b — Splash ⬜
 

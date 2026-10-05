@@ -2,10 +2,10 @@
 
 ## Sıradaki adım
 
-Faz 5 — Performans Merkezi: canlı CPU/RAM/GPU göstergeleri, RAM temizliği (çalışma kümesi kırpma), CPU önceliği,
-güç planı, Windows Oyun Modu / Game Bar / Game DVR / donanım hızlandırmalı GPU zamanlaması vb.; oyuna özel
-performans profilleri (oyun açılınca uygula, kapanınca geri al; çökme sonrası geri alma). Her ayar gerçek
-sistemde aç/kapa + geri alma ile test edilecek; yönetici izni gerekenler açıkça işaretlenecek. Dal: `faz/05-performans`.
+Faz 6 — Açılış ekranı (splash): canvas dönen çember, gerçek ilerleme olayları, kayan durum metni, hata durumu,
+titreşimsiz geçiş. Ardından: diğer dedektörler (GOG, EA, Ubisoft, Battle.net, Xbox), SteamGridDB, oyun detay sayfası,
+save yedekleme, öneriler/komut paleti, i18n, otomatik güncelleme.
+**Kullanıcı doğrulaması bekleyen:** yönetici gerektiren 3 ayar + bekleme belleği temizliği (UAC onayı gerektirir).
 
 ## Kararlar (gerekçeli)
 
@@ -20,6 +20,15 @@ sistemde aç/kapa + geri alma ile test edilecek; yönetici izni gerekenler açı
 | 2026-10-05 | NSIS Türkçe+İngilizce, dil seçicili; WebView2 bootstrapper                                                                                             | Küçük kurulum; WebView2 olmayan sistemde otomatik kurulum                                                              |
 | 2026-10-05 | CSP katı (`default-src 'self'`), yalnız `core:default` + `opener:default`                                                                              | En az yetki; ihtiyaç oldukça faz faz açılacak                                                                          |
 | 2026-10-05 | Release profili `opt-level = "s"`, LTO, strip                                                                                                          | Kurulum boyutu hedefi (ilk build: NSIS 1.18 MB)                                                                        |
+| 2026-10-05 | Performans Merkezi: canlı ölçüm yalnız sayfa açıkken (1 sn); GPU için PDH sayaçları (`GPU Engine(*engtype_3D)`, `GPU Adapter Memory`)                  | Arka planda ek yük yok; Görev Yöneticisi ile aynı kaynak. Sıcaklık sürücü/WMI gerektirdiği için gösterilmiyor          |
+| 2026-10-05 | Windows ayarları sabit beyaz liste (10 ayar); orijinal değer ilk değişiklikte `settings.tweak_originals`'a                                             | "Varsayılanlara dön"; rastgele kayıt defteri yazımı yok                                                                |
+| 2026-10-05 | Fare ivmesi ve pencere animasyonları `SystemParametersInfo` ile                                                                                        | Kayıt defteri tek başına anında etki etmez; API anında uygular ve kalıcılaştırır                                       |
+| 2026-10-05 | Yönetici ayarları: uygulama kendini `--admin-task <id> <on                                                                                             | off>` ile UAC (`runas`) üzerinden çalıştırır; görev yalnız beyaz listedeki `requires_admin` ayarları kabul eder        | En az yetki: uygulama yönetici olarak çalışmaz; yalnız onaylanan tek işlem yükseltilir |
+| 2026-10-05 | Güç planı Power API ile (PowerEnumerate/ReadFriendlyName/SetActiveScheme), asla plan oluşturulmaz                                                      | `powercfg` çıktısı OEM kod sayfasında Türkçe adları bozuyor; makinede başka araçların bıraktığı 559 kopya plan var     |
+| 2026-10-05 | RAM: `EmptyWorkingSet` (yönetici gerekmez) + isteğe bağlı bekleme listesi temizliği (`NtSetSystemInformation(80, 4)`, yönetici)                        | Ölçüm: 109 süreç, 1.277 MB çalışma kümesi boşaldı                                                                      |
+| 2026-10-05 | Oyun profili: oyun başlayınca uygula, son profilli oyun kapanınca geri al; geri alınacaklar `perf-state.json`'da, açılışta kurtarma                    | Çökme sonrası güç planı/bildirim ayarı takılı kalmasın                                                                 |
+| 2026-10-05 | Başlatıcıdan sonradan doğan oyun süreçlerine de öncelik (her ölçümde yeni pid'ler)                                                                     | Steam/Epic oyunları çoğu zaman başlatıcı üzerinden açılır                                                              |
+| 2026-10-05 | Uygulama kapatma önce nazik (WM_CLOSE), korumalı liste (sistem, güvenlik, kabuk, başlatıcılar, Oyun Arşivim)                                           | Kullanıcı verisine saygı; sistem süreçlerine asla dokunulmaz                                                           |
 | 2026-10-05 | Faz 4 = oynama süresi + istatistik (Performans Merkezi Faz 5'e)                                                                                        | Kullanıcı isteği; takip verisi zamanla biriktiği için erken başlamalı                                                  |
 | 2026-10-05 | Steam süreleri `userdata/*/config/localconfig.vdf` → `Playtime`, `Playtime2wks` (dakika), hesaplar toplanır                                            | API anahtarı gerektirmez; Steam dosyayı oyun kapanınca yazar → oturum bitiminden 15 sn sonra yeniden okunur            |
 | 2026-10-05 | Epic süreleri yalnız kendi takibimizle                                                                                                                 | Epic oynama süresini yerelde tutmuyor (yalnız hesaplı sunucu API'si)                                                   |
@@ -98,6 +107,7 @@ Proje skill'leri (skill-creator formatı): `full-check`, `phase-close`, `add-det
 | React 19 `react-hooks/refs`: render sırasında ref okuma/yazma (AnimatedOutlet yön hesabı)                   | "Önceki değeri state'te tut" deseni (render sırasında koşullu `setState`)                                                                                               |
 | Türkçe link.exe çıktısı "Non-UTF-8 output" uyarısı (`VSLANG` işe yaramadı — BT'de yalnız Türkçe dil paketi) | Makine cargo config'ine `rustflags = ['-Alinker-messages']`                                                                                                             |
 | Bash aracı tırnak içeren heredoc'ları ayrıştıramıyor                                                        | Uzun betikler scratchpad'e dosya olarak yazılıp çalıştırılıyor                                                                                                          |
+| `windows` crate `NtSetSystemInformation`'ı sunmuyor                                                         | ntdll'den `#[link(name = "ntdll")]` ile doğrudan bağlandı                                                                                                               |
 | **Takipçi hiç kayıt yapmıyordu**                                                                            | `matcher_at = i64::MIN` → `t - matcher_at` taşma: release'te eşleyici hiç kurulmuyor, debug'da iş parçacığı çöküyordu → `Option<i64>` + `matcher_due` + regresyon testi |
 | Grafik ekseninde tekrar eden etiketler ("1 dk, 1 dk")                                                       | `niceStep` ile yuvarlak süre adımları + kısa eksen biçimi                                                                                                               |
 | Kopyalanan notepad.exe hemen kapanıyor (MUI dosyası yok)                                                    | Uçtan uca testte ping.exe kopyası kullanıldı                                                                                                                            |

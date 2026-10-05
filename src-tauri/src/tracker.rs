@@ -16,7 +16,10 @@ use tauri::{AppHandle, Emitter};
 use crate::commands::{now, SharedState, EVENT_LIBRARY_CHANGED};
 use crate::detectors::{steam, steam_playtime, Platform};
 use crate::library::{self, Game};
+use crate::perf::boost::{self, BoostManager, BoostOptions, RunningGames};
+use crate::perf::memory;
 use crate::playtime;
+use crate::settings;
 
 pub const IDLE_AFTER_SECS: u64 = 180;
 const MAX_GAP_SECS: i64 = 45;
@@ -227,19 +230,27 @@ impl InputMonitor {
     }
 }
 
-fn running_game_ids(sys: &mut sysinfo::System, matcher: &GameMatcher) -> HashSet<i64> {
+fn running_games(sys: &mut sysinfo::System, matcher: &GameMatcher) -> RunningGames {
     use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, UpdateKind};
     sys.refresh_processes_specifics(
         ProcessesToUpdate::All,
         true,
         ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
     );
-    sys.processes()
-        .values()
-        .filter_map(|p| p.exe())
-        .filter_map(|exe| matcher.match_exe(&exe.to_string_lossy()))
-        .collect()
+    let mut out: RunningGames = HashMap::new();
+    for p in sys.processes().values() {
+        if let Some(id) = p
+            .exe()
+            .and_then(|exe| matcher.match_exe(&exe.to_string_lossy()))
+        {
+            out.entry(id).or_default().push(p.pid().as_u32());
+        }
+    }
+    out
 }
+
+/// Otomatik RAM temizliği en sık bu aralıkta yapılır.
+const AUTO_CLEAN_MIN_INTERVAL_SECS: i64 = 300;
 
 fn reimport_steam(conn: &Connection) {
     if let Some(root) = steam::steam_root_from_registry() {
@@ -256,8 +267,8 @@ fn matcher_due(last: Option<i64>, now: i64) -> bool {
     last.is_none_or(|l| now.saturating_sub(l) >= MATCHER_REFRESH_SECS)
 }
 
-/// Takipçiyi arka plan iş parçacığında başlatır.
-pub fn spawn(app: AppHandle, state: SharedState) {
+/// Takipçiyi arka plan iş parçacığında başlatır. `perf_state`: performans geri alma durum dosyası.
+pub fn spawn(app: AppHandle, state: SharedState, perf_state: std::path::PathBuf) {
     std::thread::Builder::new()
         .name("oyun-takipci".into())
         .spawn(move || {
@@ -271,15 +282,38 @@ pub fn spawn(app: AppHandle, state: SharedState) {
             let mut matcher = GameMatcher::default();
             let mut matcher_at: Option<i64> = None;
             let mut steam_reimport_at: Option<i64> = None;
+            let mut boost = BoostManager::new(perf_state);
+            let mut opts = BoostOptions::default();
+            let mut prefs = settings::Settings::default();
+            let mut last_auto_clean = i64::MIN / 2;
+            let mut ram_sys = sysinfo::System::new();
+            if let Ok(conn) = state.db.lock() {
+                prefs = settings::load(&conn);
+                opts = BoostOptions { close_list: prefs.close_list.clone(), restart_closed_apps: prefs.restart_closed_apps };
+            }
+            // Önceki oturum çöktüyse performans değişikliklerini geri al.
+            boost.recover(&opts);
             loop {
                 let t = now();
                 if matcher_due(matcher_at, t) {
                     if let Ok(conn) = state.db.lock() {
                         matcher = GameMatcher::new(&library::list(&conn).unwrap_or_default());
+                        prefs = settings::load(&conn);
+                        opts = BoostOptions { close_list: prefs.close_list.clone(), restart_closed_apps: prefs.restart_closed_apps };
                     }
                     matcher_at = Some(t);
+                    // Otomatik RAM temizliği (eşik + en fazla 5 dakikada bir).
+                    if prefs.auto_ram_clean && t - last_auto_clean >= AUTO_CLEAN_MIN_INTERVAL_SECS {
+                        ram_sys.refresh_memory_specifics(sysinfo::MemoryRefreshKind::nothing().with_ram());
+                        if memory::should_auto_clean(ram_sys.total_memory(), ram_sys.available_memory(), prefs.auto_ram_threshold) {
+                            let r = memory::trim_working_sets();
+                            tracing::info!(freed_mb = r.freed_bytes / 1_048_576, "otomatik RAM temizliği");
+                            last_auto_clean = t;
+                        }
+                    }
                 }
-                let running = running_game_ids(&mut sys, &matcher);
+                let running_map = running_games(&mut sys, &matcher);
+                let running: HashSet<i64> = running_map.keys().copied().collect();
                 let idle = input.is_idle(t);
                 let outcome = match state.db.lock() {
                     Ok(conn) => {
@@ -299,10 +333,28 @@ pub fn spawn(app: AppHandle, state: SharedState) {
                         if !o.ended.is_empty() {
                             steam_reimport_at = Some(t + STEAM_REIMPORT_DELAY_SECS);
                         }
+                        for game in &o.started {
+                            let profile = state
+                                .db
+                                .lock()
+                                .ok()
+                                .and_then(|c| boost::load_profile(&c, *game).ok())
+                                .unwrap_or_default();
+                            let pids = running_map.get(game).cloned().unwrap_or_default();
+                            boost.on_game_started(*game, &profile, &pids, &opts);
+                        }
+                        for game in &o.ended {
+                            boost.on_game_ended(*game, &opts);
+                        }
                         let _ = app.emit(EVENT_LIBRARY_CHANGED, ());
                     }
                     Ok(_) => {}
                     Err(err) => tracing::warn!(%err, "takip verisi yazılamadı"),
+                }
+                // Başlatıcı üzerinden açılan oyunların sonradan doğan süreçlerine de öncelik ver.
+                if boost.is_active() {
+                    let pids: Vec<u32> = running_map.values().flatten().copied().collect();
+                    boost.boost_new_pids(&pids);
                 }
                 std::thread::sleep(if core.is_tracking() { POLL_ACTIVE } else { POLL_IDLE });
             }
@@ -488,7 +540,7 @@ mod real_system {
         }
         let matcher = GameMatcher::new(&games);
         let mut sys = sysinfo::System::new();
-        println!("eşleşen: {:?}", running_game_ids(&mut sys, &matcher));
+        println!("eşleşen: {:?}", running_games(&mut sys, &matcher));
         use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, UpdateKind};
         sys.refresh_processes_specifics(
             ProcessesToUpdate::All,

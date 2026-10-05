@@ -6,6 +6,10 @@ export interface AppSettings {
   launchAtStartup: boolean;
   closeToTray: boolean;
   motion: MotionPreference;
+  autoRamClean: boolean;
+  autoRamThreshold: number;
+  closeList: string[];
+  restartClosedApps: boolean;
 }
 
 export const settingsApi = {

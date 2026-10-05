@@ -1,6 +1,6 @@
 [package]
 name = "oyun-arsivim"
-version = "0.4.0"
+version = "0.5.0"
 description = "Windows için akıllı oyun kütüphanesi ve başlatıcı"
 authors = ["Oyun Arşivim"]
 license = "MIT"
@@ -33,7 +33,7 @@ tracing-subscriber = { version = "0.3.23", default-features = false, features = 
 tracing-appender = "0.2.5"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.61.3", features = ["Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_Shell", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_SystemInformation", "Win32_UI_Input_XboxController"] }
+windows = { version = "0.61.3", features = ["Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_Shell", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_SystemInformation", "Win32_UI_Input_XboxController", "Win32_System_Performance", "Win32_System_ProcessStatus", "Win32_System_Threading", "Win32_Security", "Win32_System_Registry", "Win32_System_Power", "Win32_System_SystemServices"] }
 winreg = "0.55"
 
 [profile.release]

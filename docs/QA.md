@@ -60,6 +60,19 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 | Vitrin            | 3 hızlı → basışından 1'i uygulandı (kilit); görsel 10 sn merkez yakınlaşma; 10. sn'de otomatik geçiş                                                                     |
 | Tam ekran         | 1920×1080 ana sayfa / kütüphane / istatistik düzenleri bozulmasız                                                                                                        |
 
+### Faz 5 — 2026-10-05
+
+| Kontrol                    | Sonuç                                                                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| cargo test                 | 66+ GEÇTİ (ölçüm, ayarlar, beyaz liste, RAM, güç planı, korumalı süreçler, profil)                                                                     |
+| Gerçek ölçüm               | CPU 16 iş parçacığı, RAM 6,6/15,9 GB, GPU %1, VRAM 1.407 MB (RX 6700 XT)                                                                               |
+| Kullanıcı ayarları         | 7 ayarın her biri ters çevrildi → doğrulandı → orijinaline döndü                                                                                       |
+| Arayüzden ayar             | Game DVR anahtarı: `GameDVR_Enabled` 1 → 0 → 1                                                                                                         |
+| Yönetici görevi            | Yetkisiz: HKLM yazımı reddedildi (kod 5, değer değişmedi); beyaz liste dışı reddedildi (kod 3); bekleme belleği ayrıcalıksız güvenle başarısız (kod 6) |
+| RAM temizliği              | 109 süreç, 1.277 MB çalışma kümesi; kullanılabilir 10.325 → 10.625 MB                                                                                  |
+| Uçtan uca profil (tepside) | Test oyunu: plan Yüksek → Nihai Performans, öncelik High; oyun kapanınca plan Yüksek'e döndü                                                           |
+| **Bekleyen**               | UAC onaylı HAGS / ağ kısıtlaması / MMCSS ve bekleme belleği: kullanıcının onay vermesi gerekir                                                         |
+
 ## Bulunan ve çözülen hatalar
 
 | #   | Faz | Hata                                                           | Regresyon koruması                                  | Çözüm                                                 |
