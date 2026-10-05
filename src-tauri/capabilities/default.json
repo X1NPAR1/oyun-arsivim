@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Ana pencere için en az yetki ilkesine göre izinler",
-  "windows": ["main"],
+  "windows": ["main", "splash"],
   "permissions": [
     "core:default",
     "opener:default",

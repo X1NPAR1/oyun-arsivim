@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oyun Arşivim</title>
+  </head>
+  <body>
+    <main class="splash" id="splash">
+      <div class="splash__logo">
+        <img id="logo" alt="Oyun Arşivim" width="76" height="76" />
+        <span class="splash__shine" aria-hidden="true"></span>
+      </div>
+      <h1 class="splash__name">Oyun Arşivim</h1>
+
+      <section class="splash__progress" id="progress-view">
+        <div class="ring">
+          <canvas id="ring" width="96" height="96" aria-hidden="true"></canvas>
+          <span
+            class="ring__percent"
+            id="percent"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            >%0</span
+          >
+        </div>
+        <div class="status" aria-live="polite">
+          <span class="status__line" id="status">Başlatılıyor...</span>
+        </div>
+      </section>
+
+      <section class="splash__error" id="error-view" hidden>
+        <p class="error__title">Başlatılamadı</p>
+        <p class="error__message" id="error-message"></p>
+        <div class="error__actions">
+          <button type="button" class="btn btn--primary" id="retry">Tekrar dene</button>
+          <button type="button" class="btn btn--glass" id="open-log">Günlüğü aç</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/splash/main.ts"></script>
+  </body>
+</html>

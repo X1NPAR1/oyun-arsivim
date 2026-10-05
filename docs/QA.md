@@ -73,6 +73,17 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 | Uçtan uca profil (tepside) | Test oyunu: plan Yüksek → Nihai Performans, öncelik High; oyun kapanınca plan Yüksek'e döndü                                                           |
 | **Bekleyen**               | UAC onaylı HAGS / ağ kısıtlaması / MMCSS ve bekleme belleği: kullanıcının onay vermesi gerekir                                                         |
 
+### Faz 6 — 2026-10-06
+
+| Kontrol                           | Sonuç                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Vitest                            | 45/45 GEÇTİ (ilerleme yumuşatma, çember geometrisi dahil)                                                |
+| cargo test                        | GEÇTİ (adım ağırlıkları = 100, durum metni eşikleri)                                                     |
+| Soğuk açılış (release)            | Splash 1,5 sn'de görünür, ~0,95 sn kalır, toplam 2,5 sn (hedef < 3 sn)                                   |
+| Kaçan olay                        | Splash, kendisinden önce biten açılışın son durumunu (%100 · Hazır!) doğru gösterdi                      |
+| Hata ekranı (debug test anahtarı) | Mesaj + Tekrar dene + Günlüğü aç; süreç çökmedi; Tekrar dene günlükte yeniden deneme + yeni sonuç üretti |
+| Gerileme                          | Tepsi (18 MB), tek örnek, `--hidden` (pencere yok, 14 MB) çalışıyor                                      |
+
 ## Bulunan ve çözülen hatalar
 
 | #   | Faz | Hata                                                           | Regresyon koruması                                  | Çözüm                                                 |

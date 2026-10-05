@@ -10,18 +10,19 @@ mod logging;
 mod perf;
 mod playtime;
 mod settings;
+mod startup;
 mod tracker;
 mod tray;
 mod window_style;
 
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use serde::Serialize;
-use tauri::{Manager, RunEvent};
+use tauri::{Emitter, Manager, RunEvent, WebviewWindowBuilder};
 use window_style::Backdrop;
 
-use commands::{AppState, SharedState};
+use commands::SharedState;
 
 /// Arayüzün "Hakkında" ve tanılama ekranları için temel uygulama kimliği.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -63,14 +64,120 @@ fn window_backdrop(state: tauri::State<'_, BackdropState>) -> Backdrop {
     state.0.lock().map(|b| *b).unwrap_or(Backdrop::None)
 }
 
-fn init_state(app: &tauri::App) -> Result<SharedState, Box<dyn std::error::Error>> {
-    let data = app.path().app_local_data_dir()?;
-    let conn = db::open(&data.join("library.sqlite"))?;
-    Ok(Arc::new(AppState {
-        db: Mutex::new(conn),
-        artwork: artwork::ArtworkStore::new(data.join("artwork")),
-        scanning: AtomicBool::new(false),
-    }))
+const SPLASH: &str = "splash";
+
+/// Açılış bir kez başarıyla bitince true; tekrar dene düğmesi ikinci kez başlatmasın.
+struct StartupFlag {
+    running: AtomicBool,
+    done: AtomicBool,
+    /// Splash penceresi ilk karesini boyadı ve durumu okudu.
+    splash_ready: AtomicBool,
+}
+
+/// Splash hazır olmasa bile ana pencere en geç bu süre sonra açılır (takılı kalmasın).
+const SPLASH_WAIT_MAX: std::time::Duration = std::time::Duration::from_secs(4);
+
+fn open_splash(app: &tauri::AppHandle) {
+    if app.get_webview_window(SPLASH).is_some() {
+        return;
+    }
+    let Some(cfg) = app
+        .config()
+        .app
+        .windows
+        .iter()
+        .find(|w| w.label == SPLASH)
+        .cloned()
+    else {
+        return;
+    };
+    match WebviewWindowBuilder::from_config(app, &cfg).and_then(|b| b.build()) {
+        Ok(w) => {
+            // Win10'da OS gölgesi yuvarlak köşelerin arkasında dikdörtgen çizer.
+            let _ = w.set_shadow(false);
+        }
+        Err(err) => tracing::warn!(%err, "açılış penceresi açılamadı"),
+    }
+}
+
+/// Açılış adımlarını arka planda çalıştırır. Başarıda tepsi, takipçi ve ana pencere başlar;
+/// hata olursa açılış penceresine bildirilir (Tekrar dene / Günlüğü aç).
+fn begin_startup(app: tauri::AppHandle, hidden: bool) {
+    let flag = app.state::<StartupFlag>();
+    if flag.done.load(Ordering::SeqCst) || flag.running.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    std::thread::spawn(move || {
+        let flag = app.state::<StartupFlag>();
+        let data = match app.path().app_local_data_dir() {
+            Ok(d) => d,
+            Err(err) => {
+                let _ = app.emit(
+                    startup::EVENT_ERROR,
+                    startup::ErrorEvent {
+                        message: err.to_string(),
+                    },
+                );
+                flag.running.store(false, Ordering::SeqCst);
+                return;
+            }
+        };
+        match startup::run(&app, &data) {
+            Ok(state) => {
+                app.manage(state.clone());
+                flag.done.store(true, Ordering::SeqCst);
+                if let Err(err) = tray::build(&app) {
+                    tracing::warn!(%err, "sistem tepsisi oluşturulamadı");
+                }
+                // Oyun süresi takibi pencereden bağımsız çalışır (tepsideyken de).
+                tracker::spawn(app.clone(), state.clone(), data.join("perf-state.json"));
+                if !hidden {
+                    // Splash görünmeden ana pencere açılırsa açılış ekranı yalnız bir an yanıp söner.
+                    let started = std::time::Instant::now();
+                    while !flag.splash_ready.load(Ordering::SeqCst)
+                        && started.elapsed() < SPLASH_WAIT_MAX
+                    {
+                        std::thread::sleep(std::time::Duration::from_millis(40));
+                    }
+                    startup::set_status(&app, |s| s.done = true);
+                    tray::show_main(&app);
+                }
+                // Sonraki açılışlarda eksik görseller arka planda tamamlanır.
+                commands::fetch_artwork(&app, &state);
+            }
+            Err(message) => {
+                tracing::error!(%message, "açılış başarısız");
+                startup::set_status(&app, |s| s.error = Some(message.clone()));
+                let _ = app.emit(startup::EVENT_ERROR, startup::ErrorEvent { message });
+            }
+        }
+        flag.running.store(false, Ordering::SeqCst);
+    });
+}
+
+/// Ana pencere ilk karesini boyadı: açılış penceresi solarak kapanabilir.
+#[tauri::command]
+fn main_ready(app: tauri::AppHandle) {
+    let _ = app.emit(startup::EVENT_DONE, ());
+}
+
+/// Splash açıldığında son durumu okur (olaylardan önce gönderilenler kaçmasın) ve hazır olduğunu bildirir.
+#[tauri::command]
+fn splash_ready(app: tauri::AppHandle) -> startup::StartupStatus {
+    app.state::<StartupFlag>()
+        .splash_ready
+        .store(true, Ordering::SeqCst);
+    app.state::<startup::StatusState>()
+        .0
+        .lock()
+        .map(|s| s.clone())
+        .unwrap_or_default()
+}
+
+#[tauri::command]
+fn startup_retry(app: tauri::AppHandle) {
+    tracing::info!("açılış yeniden deneniyor");
+    begin_startup(app, false);
 }
 
 fn close_to_tray_enabled(app: &tauri::AppHandle) -> bool {
@@ -107,35 +214,30 @@ pub fn run() {
             app.manage(perf::monitor::PerfMonitor::new());
             app.manage(BackdropState(Mutex::new(Backdrop::None)));
             app.manage(tray::QuitFlag(AtomicBool::new(false)));
-            let state = init_state(app)?;
-            state.artwork.cleanup_legacy();
-            app.manage(state.clone());
-            tray::build(app.handle())?;
-            // Oyun süresi takibi pencereden bağımsız çalışır (tepsideyken de).
-            tracker::spawn(
-                app.handle().clone(),
-                state.clone(),
-                data.join("perf-state.json"),
-            );
-
-            // Windows açılışında `--hidden` ile başlatıldıysa pencere açılmaz, yalnız tepside çalışır.
-            if !tray::started_hidden() {
-                tray::show_main(app.handle());
-            }
-
-            // İlk tarama arka planda: arayüz önce veritabanındaki listeyle hemen açılır.
-            let handle = app.handle().clone();
-            std::thread::spawn(move || {
-                if let Err(err) = commands::run_scan(&handle, &state) {
-                    tracing::warn!(%err, "açılış taraması başarısız");
-                }
+            app.manage(StartupFlag {
+                running: AtomicBool::new(false),
+                done: AtomicBool::new(false),
+                splash_ready: AtomicBool::new(false),
             });
+            app.manage(startup::StatusState(Mutex::new(
+                startup::StartupStatus::default(),
+            )));
+            let _ = data;
+            // Windows açılışında `--hidden` ile başlatıldıysa açılış penceresi de ana pencere de açılmaz.
+            let hidden = tray::started_hidden();
+            if !hidden {
+                open_splash(app.handle());
+            }
+            begin_startup(app.handle().clone(), hidden);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             app_info,
             window_backdrop,
             open_log_dir,
+            main_ready,
+            splash_ready,
+            startup_retry,
             commands::list_games,
             commands::scan_library,
             commands::add_manual_game,

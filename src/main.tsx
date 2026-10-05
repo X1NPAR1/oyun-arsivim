@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { invoke } from "@tauri-apps/api/core";
 import { windowControls } from "./ipc/window";
 import "./styles.css";
 
@@ -25,5 +26,7 @@ window.addEventListener("contextmenu", (e) => {
 requestAnimationFrame(() => {
   requestAnimationFrame(() => {
     void windowControls.show();
+    // Açılış penceresine "hazırım" de: o solarak kapanır.
+    invoke("main_ready").catch(() => undefined);
   });
 });

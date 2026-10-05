@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import process from "node:process";
+import { resolve } from "node:path";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -21,6 +22,13 @@ export default defineConfig({
   build: {
     target: "es2022",
     sourcemap: false,
+    // İki sayfa: ana uygulama ve hafif açılış penceresi.
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, "index.html"),
+        splash: resolve(import.meta.dirname, "splash.html"),
+      },
+    },
   },
   test: {
     environment: "jsdom",

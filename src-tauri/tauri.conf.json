@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Oyun Arşivim",
   "mainBinaryName": "oyun-arsivim",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "identifier": "com.oyunarsivim.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -25,6 +25,23 @@
         "shadow": true,
         "visible": false,
         "create": false
+      },
+      {
+        "label": "splash",
+        "title": "Oyun Arşivim",
+        "url": "splash.html",
+        "create": false,
+        "width": 440,
+        "height": 340,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "center": true,
+        "visible": false,
+        "skipTaskbar": false
       }
     ],
     "security": {
