@@ -1,33 +1,57 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { createMemoryRouter, RouterProvider } from "react-router";
 import { vi } from "vitest";
-import App from "./App";
-
-type InvokeImpl = (cmd: string) => Promise<unknown>;
-let invokeImpl: InvokeImpl = () => Promise.resolve(undefined);
-const calls: string[] = [];
+import { routes } from "./routes";
 
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: (cmd: string): Promise<unknown> => {
-    calls.push(cmd);
-    return invokeImpl(cmd);
+  invoke: (): Promise<unknown> => Promise.resolve("none"),
+}));
+vi.mock("@tauri-apps/api/window", () => ({
+  getCurrentWindow: () => {
+    throw new Error("Tauri dışında");
   },
 }));
 
-describe("App", () => {
-  beforeEach(() => {
-    calls.length = 0;
+function renderAt(path: string) {
+  const router = createMemoryRouter(routes, { initialEntries: [path] });
+  render(<RouterProvider router={router} />);
+  return router;
+}
+
+describe("uygulama kabuğu", () => {
+  it("özel başlık çubuğunu ve pencere düğmelerini gösterir", () => {
+    renderAt("/");
+    expect(screen.getByRole("button", { name: "Küçült" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Büyüt" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Kapat" })).toBeInTheDocument();
   });
 
-  it("Rust'tan gelen sürümü gösterir", async () => {
-    invokeImpl = () => Promise.resolve({ name: "Oyun Arşivim", version: "0.1.0" });
-    render(<App />);
-    expect(await screen.findByTestId("version")).toHaveTextContent("Oyun Arşivim v0.1.0");
-    expect(calls).toEqual(["app_info"]);
+  it("menüden sayfalar arasında gezinir ve aktif öğeyi işaretler", async () => {
+    const user = userEvent.setup();
+    const router = renderAt("/");
+    const nav = screen.getByRole("navigation", { name: "Ana menü" });
+
+    await user.click(within(nav).getByRole("link", { name: /Kütüphane/ }));
+    expect(router.state.location.pathname).toBe("/kutuphane");
+    expect(await screen.findByRole("heading", { name: "Oyunların" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: /Kütüphane/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
   });
 
-  it("IPC hatasını anlaşılır şekilde gösterir", async () => {
-    invokeImpl = () => Promise.reject(new Error("bağlantı yok"));
-    render(<App />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("bağlantı yok");
+  it("ayarlarda animasyon seviyesi değiştirilebilir ve kalıcıdır", async () => {
+    const user = userEvent.setup();
+    renderAt("/ayarlar");
+    const radio = screen.getByRole("radio", { name: "Kapalı" });
+    await user.click(radio);
+    expect(radio).toHaveAttribute("aria-checked", "true");
+    expect(localStorage.getItem("oa.motionPreference")).toBe("off");
+  });
+
+  it("arayüzde SVG öğesi bulunmaz", () => {
+    renderAt("/");
+    expect(document.querySelectorAll("svg")).toHaveLength(0);
   });
 });

@@ -29,14 +29,26 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 | Release build                  | NSIS 1.18 MB, MSI 1.69 MB                                                                      |
 | Gerçek çalıştırma              | Release exe açıldı, Rust'tan gelen sürüm göründü, RAM 23 MB (`review/faz-01/release-main.png`) |
 
+### Faz 2 — 2026-10-05
+
+| Kontrol         | Sonuç                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Vitest          | 16/16 GEÇTİ (hareket token'ları, yön hesabı, animasyon tercihi, kabuk gezinmesi, SVG yokluğu)                                         |
+| cargo test      | 5/5 GEÇTİ (Mica sürüm eşiği, gerçek Windows build okuma)                                                                              |
+| Gerçek kullanım | Dev penceresinde menü tıklamalarıyla gezinme, stagger kareleri (`gecis-kutuphane-*.png`), animasyon seviyesi değiştirme; RAM 30–36 MB |
+
 ## Bulunan ve çözülen hatalar
 
-| #   | Faz | Hata                                           | Regresyon koruması | Çözüm                                                 |
-| --- | --- | ---------------------------------------------- | ------------------ | ----------------------------------------------------- |
-| 1   | 1   | LNK1104 msvcrt.lib                             | cargo build        | Linker/SDK yolları makine cargo config'ine sabitlendi |
-| 2   | 1   | WiX LGHT0311 (ş, 1252)                         | release build (CI) | MSI dili tr-TR                                        |
-| 3   | 1   | Vitest 5 reddedilen `vi.fn` sonucu test hatası | `App.test.tsx`     | Düz fonksiyon mock                                    |
+| #   | Faz | Hata                                                           | Regresyon koruması               | Çözüm                                                 |
+| --- | --- | -------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------- |
+| 1   | 1   | LNK1104 msvcrt.lib                                             | cargo build                      | Linker/SDK yolları makine cargo config'ine sabitlendi |
+| 2   | 1   | WiX LGHT0311 (ş, 1252)                                         | release build (CI)               | MSI dili tr-TR                                        |
+| 3   | 1   | Vitest 5 reddedilen `vi.fn` sonucu test hatası                 | `App.test.tsx`                   | Düz fonksiyon mock                                    |
+| 4   | 2   | Win10'da sert pencere köşeleri + gölgenin dikdörtgen çerçevesi | `review/faz-02/kutuphane-v2.png` | Win10'da gölge kapalı, kabuk 16px yuvarlatır          |
+| 5   | 2   | Yerel kaydırma çubuğu okları tasarıma aykırı                   | görsel inceleme                  | İnce, oksuz `::-webkit-scrollbar`                     |
+| 6   | 2   | Kullanıcı: degradeler/ışımalar "yapay zekâ hissi" veriyor      | `review/faz-02/v3-*.png`         | Nötr grafit palet; ışıma ve renkli küreler kaldırıldı |
 
 ## Tasarım değerlendirmeleri
 
 - Faz 1: Tasarım sistemi henüz yok (Faz 2). Pencere, Türkçe başlık ve IPC metni doğru. Varsayılan font görülüyor → Faz 2'de giderilecek.
+- Faz 2 (`review/faz-02/`): 1 Sert dikdörtgen yok — GEÇTİ (pencere 16px, yüzeyler 22–28px) · 2 Cam/derinlik — GEÇTİ · 3 Sora/Manrope, Türkçe glifler — GEÇTİ · 4 SVG yok (test + arama) — GEÇTİ · 5 Kontrast — GEÇTİ · 6 Hiyerarşi/taşma — GEÇTİ ("İstatistikler" 64px'e sığıyor) · 7 Yüzen sidebar + özel başlık çubuğu — GEÇTİ · 8 Hareket: stagger ve yönlü geçiş kareleri akıcı — GEÇTİ.

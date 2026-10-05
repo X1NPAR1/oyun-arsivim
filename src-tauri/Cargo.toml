@@ -1,6 +1,6 @@
 [package]
 name = "oyun-arsivim"
-version = "0.1.0"
+version = "0.2.0"
 description = "Windows için akıllı oyun kütüphanesi ve başlatıcı"
 authors = ["Oyun Arşivim"]
 license = "MIT"
@@ -20,6 +20,9 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.55"
 
 [profile.release]
 codegen-units = 1

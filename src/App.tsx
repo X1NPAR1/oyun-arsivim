@@ -1,36 +1,46 @@
-import { useEffect, useState } from "react";
-import { getAppInfo, type AppInfo } from "./ipc/appInfo";
+import { useEffect } from "react";
+import { createHashRouter, RouterProvider } from "react-router";
+import { getWindowBackdrop } from "./ipc/window";
+import { routes } from "./routes";
+import { useMotionLevel, useUiStore } from "./stores/ui";
 
-type LoadState =
-  { kind: "loading" } | { kind: "ready"; info: AppInfo } | { kind: "error"; message: string };
+// Hash yönlendirme: masaüstünde adres çubuğu yok ve yeniden yüklemede sunucu yönlendirmesi gerekmez.
+const router = createHashRouter(routes);
 
-export default function App() {
-  const [state, setState] = useState<LoadState>({ kind: "loading" });
+/** Animasyon seviyesi ve pencere arka planını <html> özniteliklerine yansıtır (CSS bunları kullanır). */
+function useEnvironmentSync() {
+  const level = useMotionLevel();
+  const backdrop = useUiStore((s) => s.backdrop);
+  const setSystemReducedMotion = useUiStore((s) => s.setSystemReducedMotion);
+  const setBackdrop = useUiStore((s) => s.setBackdrop);
 
   useEffect(() => {
-    let cancelled = false;
-    getAppInfo()
-      .then((info) => {
-        if (!cancelled) setState({ kind: "ready", info });
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) setState({ kind: "error", message: String(err) });
-      });
-    return () => {
-      cancelled = true;
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => {
+      setSystemReducedMotion(query.matches);
     };
-  }, []);
+    sync();
+    query.addEventListener("change", sync);
+    return () => {
+      query.removeEventListener("change", sync);
+    };
+  }, [setSystemReducedMotion]);
 
-  return (
-    <main className="app-root">
-      <h1>Oyun Arşivim</h1>
-      {state.kind === "loading" && <p>Yükleniyor…</p>}
-      {state.kind === "ready" && (
-        <p data-testid="version">
-          {state.info.name} v{state.info.version}
-        </p>
-      )}
-      {state.kind === "error" && <p role="alert">Sürüm bilgisi alınamadı: {state.message}</p>}
-    </main>
-  );
+  useEffect(() => {
+    getWindowBackdrop()
+      .then(setBackdrop)
+      .catch(() => {
+        // Tauri dışında (tarayıcı önizlemesi) opak CSS zemini kalır.
+      });
+  }, [setBackdrop]);
+
+  useEffect(() => {
+    document.documentElement.dataset.motion = level;
+    document.documentElement.dataset.backdrop = backdrop;
+  }, [level, backdrop]);
+}
+
+export default function App() {
+  useEnvironmentSync();
+  return <RouterProvider router={router} />;
 }
