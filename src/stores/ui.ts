@@ -5,21 +5,6 @@ import type { MotionLevel } from "../design/motion";
 export type MotionPreference = "system" | MotionLevel;
 export type Backdrop = "mica" | "none";
 
-const STORAGE_KEY = "oa.motionPreference";
-
-function readPreference(): MotionPreference {
-  // Faz 4'te ayarlar SQLite'a taşınana kadar geçici kalıcılık.
-  try {
-    const value = localStorage.getItem(STORAGE_KEY);
-    if (value === "system" || value === "full" || value === "reduced" || value === "off") {
-      return value;
-    }
-  } catch {
-    // Depolama erişilemiyorsa varsayılan kullanılır.
-  }
-  return "system";
-}
-
 export function resolveMotionLevel(pref: MotionPreference, systemReduced: boolean): MotionLevel {
   if (pref !== "system") return pref;
   return systemReduced ? "reduced" : "full";
@@ -35,15 +20,11 @@ interface UiState {
 }
 
 export const useUiStore = create<UiState>((set) => ({
-  motionPreference: readPreference(),
+  // Kalıcı değer SQLite ayarlarından gelir (useSyncMotionFromSettings).
+  motionPreference: "system",
   systemReducedMotion: false,
   backdrop: "none",
   setMotionPreference: (motionPreference) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, motionPreference);
-    } catch {
-      // Kalıcılık başarısız olsa da oturum içinde ayar geçerli kalır.
-    }
     set({ motionPreference });
   },
   setSystemReducedMotion: (systemReducedMotion) => {

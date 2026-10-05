@@ -11,9 +11,8 @@ describe("animasyon seviyesi", () => {
     expect(resolveMotionLevel("off", false)).toBe("off");
   });
 
-  it("tercih kalıcı olarak saklanır", () => {
+  it("tercih anında uygulanır", () => {
     useUiStore.getState().setMotionPreference("reduced");
-    expect(localStorage.getItem("oa.motionPreference")).toBe("reduced");
     expect(useUiStore.getState().motionPreference).toBe("reduced");
   });
 });

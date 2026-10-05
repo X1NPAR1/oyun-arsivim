@@ -1,5 +1,6 @@
 import { AnimatedOutlet } from "./AnimatedOutlet";
 import { Sidebar } from "./Sidebar";
+import { Toaster } from "../Toaster";
 import { TitleBar } from "./TitleBar";
 
 export function AppShell() {
@@ -10,6 +11,7 @@ export function AppShell() {
         <Sidebar />
         <AnimatedOutlet />
       </div>
+      <Toaster />
     </div>
   );
 }

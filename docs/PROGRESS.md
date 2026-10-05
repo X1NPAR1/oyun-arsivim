@@ -16,7 +16,7 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] Updater imza anahtarı (`D:\OyunArsivim\keys`)
 - [x] GitHub deposu (private), secrets, CI yeşil, v0.1.0 release
 
-## Faz 2 — Tasarım sistemi 🟨
+## Faz 2 — Tasarım sistemi ✅ (v0.2.0)
 
 - [x] Token'lar: `src/design/tokens.css` (renk, tipografi, yarıçap, gölge, cam, hareket) + `motion.ts`
 - [x] Tailwind 4 teması token'lardan
@@ -29,13 +29,28 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] Animasyon seviyesi (sistem/tam/azaltılmış/kapalı) + prefers-reduced-motion
 - [x] Testler (16 arayüz + 5 Rust), gerçek pencerede ekran görüntüleri `review/faz-02/`
 - [x] Kullanıcı geri bildirimiyle nötr tasarıma revizyon (`review/faz-02/v3-*.png`)
-- [ ] Release + CI
+- [x] Release + CI
 
-## Faz 3 — Steam + Epic tespiti, ana sayfa logo şeridi ⬜
+## Faz 3 — Gerçek kütüphane, vitrin, tepsi ✅ (v0.3.0)
 
-## Faz 4 — Performans Merkezi ⬜
+- [x] VDF/ACF ayrıştırıcı, Steam dedektörü (çoklu kütüphane, filtre), Epic dedektörü (DLC/motor filtresi)
+- [x] Klasörü silinmiş oyunlar kurulu sayılmıyor (gerçek GTA V vakası)
+- [x] SQLite + migration'lar (oyunlar, ayarlar); "Silindi" durumu, geri gelme
+- [x] Görsel önbelleği: Steam kapak/logo/hero, mağaza API yedeği, exe ikonu (2 yöntem)
+- [x] Kütüphane sayfası: gerçek kartlar, arama (Türkçe duyarsız), kurulu/silinen/platform filtreleri, tilt/parlama
+- [x] Elle exe ekleme: dosya seçici + sürükle-bırak, exe ikonu logo olur
+- [x] Ana sayfa vitrini: oyun görseli arka plan, sonsuz logo şeridi; ←/→, tekerlek, tıklama, otomatik akış
+- [x] Sağ tık menüsü: Oyna, Masaüstüne kısayol, Klasörü aç, Kaldır, Yeniden yükle, Kütüphaneden çıkar
+- [x] Sistem tepsisi, düşük RAM (6 MB), tek örnek, Windows açılışında arka planda başlatma
+- [x] Ayarlar: Genel (açılışta başlat, tepside çalış), Görünüm — SQLite'ta kalıcı
+- [x] Özgün logo ve uygulama ikonları
+- [x] Testler: Rust 37, arayüz 27; gerçek sistem taraması; uçtan uca tepsi/kısayol/autostart testleri
 
-## Faz 5 — Splash ⬜
+## Faz 4 — Oynama süresi (Steam içe aktarma), oturum takibi, AFK, detaylı istatistikler ⬜
+
+## Faz 5 — Performans Merkezi ⬜
+
+## Faz 5b — Splash ⬜
 
 ## Faz 6 — Veritabanı, ayarlar, günlükleme ⬜
 

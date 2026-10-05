@@ -36,6 +36,17 @@ const ICONS = [
   "command",
   "arrows-clockwise",
   "file-text",
+  "download-simple",
+  "monitor",
+  "prohibit",
+  "tray",
+  "power",
+  "cpu",
+  "memory",
+  "gauge",
+  "rocket-launch",
+  "broom",
+  "toggle-right",
 ];
 
 const pkg = "node_modules/@phosphor-icons/web/src";
