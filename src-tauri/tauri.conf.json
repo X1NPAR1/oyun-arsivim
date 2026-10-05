@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Oyun Arşivim",
   "mainBinaryName": "oyun-arsivim",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "identifier": "com.oyunarsivim.app",
   "build": {
     "beforeDevCommand": "pnpm dev",

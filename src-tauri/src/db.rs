@@ -44,6 +44,11 @@ const MIGRATIONS: &[&str] = &[
         idle_seconds   INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (game_id, hour)
     );",
+    // v4 — oyuna özel performans profilleri (JSON)
+    "CREATE TABLE perf_profiles (
+        game_id INTEGER PRIMARY KEY REFERENCES games(id) ON DELETE CASCADE,
+        profile TEXT NOT NULL
+    );",
 ];
 
 #[derive(Debug, thiserror::Error)]

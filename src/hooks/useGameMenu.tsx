@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 import { useCallback, useState, type MouseEvent, type ReactNode } from "react";
 import { ContextMenu, type MenuEntry } from "../components/ContextMenu";
 import { gameActionsApi, type GameView, type PlatformAction } from "../ipc/library";
@@ -25,6 +26,7 @@ export function useGameMenu(): {
   const client = useQueryClient();
   const launch = useLaunchGame();
   const removeManual = useRemoveManualGame();
+  const navigate = useNavigate();
   const [state, setState] = useState<{ game: GameView; x: number; y: number } | null>(null);
   const close = useCallback(() => {
     setState(null);
@@ -66,6 +68,14 @@ export function useGameMenu(): {
                   await gameActionsApi.createShortcut(g.id);
                   toast.success("Kısayol oluşturuldu", `${g.title} masaüstüne eklendi.`);
                 }, "Kısayol oluşturulamadı");
+              },
+            },
+            {
+              id: "perf",
+              label: "Performans modu…",
+              icon: "gauge",
+              onSelect: () => {
+                void navigate(`/performans?oyun=${String(g.id)}`);
               },
             },
             {

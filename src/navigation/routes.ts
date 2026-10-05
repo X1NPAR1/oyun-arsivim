@@ -12,6 +12,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { path: "/", label: "Ana sayfa", icon: "house" },
   { path: "/kutuphane", label: "Kütüphane", icon: "squares-four" },
   { path: "/istatistikler", label: "İstatistikler", icon: "chart-line-up" },
+  { path: "/performans", label: "Performans", icon: "gauge" },
   { path: "/yedekler", label: "Yedekler", icon: "cloud-arrow-up" },
   { path: "/ayarlar", label: "Ayarlar", icon: "gear-six" },
 ];

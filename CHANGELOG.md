@@ -5,6 +5,17 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.5.0] - 2026-10-05
+
+### Eklendi
+
+- Performans merkezi: canlı işlemci (çekirdek başına), bellek, ekran kartı kullanımı ve video belleği; en çok bellek kullanan uygulamalar.
+- Tek tıkla RAM temizliği, otomatik RAM temizliği (ayarlanabilir eşik) ve bekleme belleğini boşaltma (yönetici onayıyla).
+- Güç planı seçimi; oyun sırasında en yüksek plana geçip oyun bitince geri dönme.
+- Windows oyun ayarları: Oyun Modu, arka plan kaydı (Game DVR), Xbox Game Bar, tam ekran iyileştirmeleri, fare ivmesi, pencere animasyonları, bildirimler, donanım hızlandırmalı GPU zamanlaması, ağ kısıtlaması, oyun zamanlama önceliği. "Önerilenleri uygula" ve "Varsayılanlara dön".
+- Oyuna özel performans modu: yüksek işlemci önceliği, güç planı, açılışta RAM temizliği, bildirimleri susturma, seçili uygulamaları kapatma. Oyun bitince her şey otomatik geri alınır; uygulama çökse bile bir sonraki açılışta geri alınır.
+- Oyun kartı sağ tık menüsünde "Performans modu…".
+
 ## [0.4.0] - 2026-10-05
 
 ### Eklendi

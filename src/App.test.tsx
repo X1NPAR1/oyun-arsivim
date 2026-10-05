@@ -5,7 +5,15 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { vi } from "vitest";
 import { routes } from "./routes";
 
-let settings = { launchAtStartup: false, closeToTray: true, motion: "system" };
+let settings = {
+  launchAtStartup: false,
+  closeToTray: true,
+  motion: "system",
+  autoRamClean: false,
+  autoRamThreshold: 85,
+  closeList: [] as string[],
+  restartClosedApps: true,
+};
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: (cmd: string, args?: { patch?: object }): Promise<unknown> => {

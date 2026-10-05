@@ -12,6 +12,14 @@ pub struct Settings {
     pub close_to_tray: bool,
     /// Animasyon seviyesi: "system" | "full" | "reduced" | "off".
     pub motion: String,
+    /// Kullanılan bellek eşiği aşınca otomatik RAM temizliği.
+    pub auto_ram_clean: bool,
+    /// Otomatik temizlik eşiği (kullanılan bellek yüzdesi).
+    pub auto_ram_threshold: u8,
+    /// Performans profilinde "uygulamaları kapat" açıkken kapatılacak exe adları.
+    pub close_list: Vec<String>,
+    /// Oyun bitince kapatılan uygulamaları yeniden başlat.
+    pub restart_closed_apps: bool,
 }
 
 impl Default for Settings {
@@ -20,6 +28,10 @@ impl Default for Settings {
             launch_at_startup: false,
             close_to_tray: true,
             motion: "system".to_owned(),
+            auto_ram_clean: false,
+            auto_ram_threshold: 85,
+            close_list: Vec::new(),
+            restart_closed_apps: true,
         }
     }
 }
@@ -42,6 +54,7 @@ pub fn load(conn: &Connection) -> Settings {
     if !matches!(s.motion.as_str(), "system" | "full" | "reduced" | "off") {
         s.motion = "system".to_owned();
     }
+    s.auto_ram_threshold = s.auto_ram_threshold.clamp(50, 98);
     s
 }
 
@@ -81,6 +94,8 @@ mod tests {
             launch_at_startup: true,
             close_to_tray: false,
             motion: "off".into(),
+            close_list: vec!["Spotify.exe".into()],
+            ..Settings::default()
         };
         save(&conn, &s).unwrap();
         assert_eq!(load(&conn), s);
