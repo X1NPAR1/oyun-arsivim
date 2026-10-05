@@ -13,6 +13,14 @@ createRoot(rootElement).render(
   </StrictMode>,
 );
 
+// Tarayıcının varsayılan sağ tık menüsü (Yenile, İncele…) masaüstü uygulamasında gösterilmez;
+// metin alanlarında kopyala/yapıştır için korunur.
+window.addEventListener("contextmenu", (e) => {
+  const t = e.target as HTMLElement | null;
+  if (t?.closest("input, textarea, [contenteditable=true]")) return;
+  e.preventDefault();
+});
+
 // Pencere görünmez başlar; ilk kare boyandıktan sonra gösterilir → beyaz flaş olmaz.
 requestAnimationFrame(() => {
   requestAnimationFrame(() => {

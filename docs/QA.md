@@ -37,16 +37,31 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 | cargo test      | 5/5 GEÇTİ (Mica sürüm eşiği, gerçek Windows build okuma)                                                                              |
 | Gerçek kullanım | Dev penceresinde menü tıklamalarıyla gezinme, stagger kareleri (`gecis-kutuphane-*.png`), animasyon seviyesi değiştirme; RAM 30–36 MB |
 
+### Faz 3 — 2026-10-05
+
+| Kontrol                | Sonuç                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| cargo test             | 37/37 GEÇTİ (VDF, Steam/Epic fixture'ları, senkron, migration, ayarlar, görsel önbelleği, ikon, kısayol)           |
+| Vitest                 | 27/27 GEÇTİ                                                                                                        |
+| Gerçek sistem taraması | Steam 14 oyun (2 kütüphane: F:, D:), Epic 3 manifest → 2 kurulu + 1 klasörü silinmiş; 2 DLC + Unreal Engine elendi |
+| Tepsi / RAM (release)  | Pencere açık 283 MB (7 süreç) → tepside 6 MB (1 süreç); `--hidden` başlangıç 2 MB                                  |
+| Tek örnek              | İkinci başlatma mevcut süreçte pencereyi açtı, ikinci kopya kapandı                                                |
+| Windows açılışı        | Açınca `HKCU\…\Run` = `oyun-arsivim.exe --hidden`, kapatınca kayıt silindi                                         |
+| Masaüstü kısayolu      | Sağ tık → `Counter-Strike 2.url` (`steam://rungameid/730`, ikonlu) oluştu; test sonrası silindi                    |
+
 ## Bulunan ve çözülen hatalar
 
-| #   | Faz | Hata                                                           | Regresyon koruması               | Çözüm                                                 |
-| --- | --- | -------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------- |
-| 1   | 1   | LNK1104 msvcrt.lib                                             | cargo build                      | Linker/SDK yolları makine cargo config'ine sabitlendi |
-| 2   | 1   | WiX LGHT0311 (ş, 1252)                                         | release build (CI)               | MSI dili tr-TR                                        |
-| 3   | 1   | Vitest 5 reddedilen `vi.fn` sonucu test hatası                 | `App.test.tsx`                   | Düz fonksiyon mock                                    |
-| 4   | 2   | Win10'da sert pencere köşeleri + gölgenin dikdörtgen çerçevesi | `review/faz-02/kutuphane-v2.png` | Win10'da gölge kapalı, kabuk 16px yuvarlatır          |
-| 5   | 2   | Yerel kaydırma çubuğu okları tasarıma aykırı                   | görsel inceleme                  | İnce, oksuz `::-webkit-scrollbar`                     |
-| 6   | 2   | Kullanıcı: degradeler/ışımalar "yapay zekâ hissi" veriyor      | `review/faz-02/v3-*.png`         | Nötr grafit palet; ışıma ve renkli küreler kaldırıldı |
+| #   | Faz | Hata                                                           | Regresyon koruması                              | Çözüm                                                 |
+| --- | --- | -------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------- |
+| 1   | 1   | LNK1104 msvcrt.lib                                             | cargo build                                     | Linker/SDK yolları makine cargo config'ine sabitlendi |
+| 2   | 1   | WiX LGHT0311 (ş, 1252)                                         | release build (CI)                              | MSI dili tr-TR                                        |
+| 3   | 1   | Vitest 5 reddedilen `vi.fn` sonucu test hatası                 | `App.test.tsx`                                  | Düz fonksiyon mock                                    |
+| 4   | 2   | Win10'da sert pencere köşeleri + gölgenin dikdörtgen çerçevesi | `review/faz-02/kutuphane-v2.png`                | Win10'da gölge kapalı, kabuk 16px yuvarlatır          |
+| 5   | 2   | Yerel kaydırma çubuğu okları tasarıma aykırı                   | görsel inceleme                                 | İnce, oksuz `::-webkit-scrollbar`                     |
+| 6   | 2   | Kullanıcı: degradeler/ışımalar "yapay zekâ hissi" veriyor      | `review/faz-02/v3-*.png`                        | Nötr grafit palet; ışıma ve renkli küreler kaldırıldı |
+| 7   | 3   | Klasörü silinmiş GTA V kurulu görünüyordu                      | `epic::scans_directory…`, `steam::finds_games…` | Kurulum klasörü varlık kontrolü                       |
+| 8   | 3   | notepad.exe ikonu çıkarılamadı (.mun)                          | `icon::extracts_icon_from_real_system_exe`      | Shell IShellItemImageFactory yedeği                   |
+| 9   | 3   | Wallpaper Engine oyun olarak listeleniyordu                    | `steam` filtre listesi                          | Yazılım appid'leri elendi                             |
 
 ## Tasarım değerlendirmeleri
 

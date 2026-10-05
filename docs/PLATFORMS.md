@@ -1,6 +1,10 @@
 # PLATFORMS — Tespit ve başlatma yöntemleri
 
-> Faz 5–6'da her yöntem bu makinede doğrulanacak ve "Doğrulandı" sütunu güncellenecek.
+> **Doğrulandı (2026-10-05, Faz 3):** Steam ve Epic bu makinede gerçek verilerle test edildi. Ek kural: manifest olsa bile
+> kurulum klasörü yoksa oyun kurulu sayılmaz. Steam'de oyun olmayan yazılımlar (ör. Wallpaper Engine 431960) elenir.
+> Yeni Steam oyunlarının görselleri karma adreslerdedir → mağaza API'si `appdetails` `header_image` yedeği.
+> Kaldırma: Steam `steam://uninstall/<appid>`, yükleme `steam://install/<appid>`; Epic yükleme `…?action=install`,
+> kaldırma için dış adres yok → `com.epicgames.launcher://store/library`.
 
 ## Steam
 

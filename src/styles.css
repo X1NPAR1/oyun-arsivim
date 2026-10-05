@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./design/tokens.css";
+@import "./styles/library.css";
 
 /* Tailwind yardımcıları da aynı token'lardan beslenir. */
 @theme inline {
@@ -185,18 +186,17 @@ a {
   align-items: center;
   gap: 10px;
 }
-.titlebar__mark {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-  background: var(--c-text-1);
+.titlebar__logo {
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 .titlebar__name {
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: var(--c-text-2);
+  color: var(--c-text-1);
 }
 .titlebar__controls {
   display: flex;

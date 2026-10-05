@@ -12,6 +12,8 @@
     "core:window:allow-start-dragging",
     "core:window:allow-show",
     "core:window:allow-is-maximized",
-    "core:window:allow-internal-toggle-maximize"
+    "core:window:allow-internal-toggle-maximize",
+    "dialog:allow-open",
+    "autostart:default"
   ]
 }

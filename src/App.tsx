@@ -1,11 +1,18 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { createHashRouter, RouterProvider } from "react-router";
+import { useSyncMotionFromSettings } from "./hooks/useSettings";
 import { getWindowBackdrop } from "./ipc/window";
 import { routes } from "./routes";
 import { useMotionLevel, useUiStore } from "./stores/ui";
 
 // Hash yönlendirme: masaüstünde adres çubuğu yok ve yeniden yüklemede sunucu yönlendirmesi gerekmez.
 const router = createHashRouter(routes);
+
+// Veri Rust olaylarıyla tazelenir; pencereye odaklanınca tekrar sorgulamaya gerek yok.
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: 30_000, retry: 1 } },
+});
 
 /** Animasyon seviyesi ve pencere arka planını <html> özniteliklerine yansıtır (CSS bunları kullanır). */
 function useEnvironmentSync() {
@@ -40,7 +47,17 @@ function useEnvironmentSync() {
   }, [level, backdrop]);
 }
 
+function SettingsBridge() {
+  useSyncMotionFromSettings();
+  return null;
+}
+
 export default function App() {
   useEnvironmentSync();
-  return <RouterProvider router={router} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SettingsBridge />
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { windowControls } from "../../ipc/window";
+import logo1x from "../../assets/brand/logo-20.png";
+import logo2x from "../../assets/brand/logo-20@2x.png";
+import logo3x from "../../assets/brand/logo-20@3x.png";
 import { Icon } from "../Icon";
 
 /** Windows başlık çubuğunun yerini alan sürüklenebilir çubuk ve uygulama stilinde pencere düğmeleri. */
@@ -24,7 +27,16 @@ export function TitleBar() {
   return (
     <header className="titlebar" data-tauri-drag-region>
       <div className="titlebar__brand" data-tauri-drag-region>
-        <span className="titlebar__mark" aria-hidden />
+        <img
+          className="titlebar__logo"
+          src={logo1x}
+          srcSet={`${logo1x} 1x, ${logo2x} 2x, ${logo3x} 3x`}
+          width={20}
+          height={20}
+          alt=""
+          draggable={false}
+          data-tauri-drag-region
+        />
         <span className="titlebar__name" data-tauri-drag-region>
           Oyun Arşivim
         </span>

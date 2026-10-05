@@ -5,6 +5,25 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.3.0] - 2026-10-05
+
+### Eklendi
+
+- Steam (tüm kütüphane klasörleri) ve Epic Games oyunlarının otomatik bulunması.
+- Kalıcı kütüphane: kaldırılan oyunlar silinmez, gri görünür ve "Silindi" etiketi alır; yeniden kurulunca geri gelir.
+- Gerçek kapak, logo ve arka plan görselleri (yerel önbellek, internetsiz çalışır).
+- Elle oyun ekleme: .exe seç veya pencereye sürükle; exe'nin ikonu logo olarak kullanılır.
+- Kütüphanede arama, kurulu/silinen ve platform filtreleri, kart eğim/parlama efektleri.
+- Ana sayfa vitrini: oyunun görseliyle sinematik arka plan ve sonsuz logo şeridi; ←/→ tuşları, fare tekerleği ve tıklama ile gezinme.
+- Sağ tık menüsü: Oyna, Masaüstüne kısayol oluştur, Oyun klasörünü aç, Oyunu kaldır, Yeniden yükle, Kütüphaneden çıkar.
+- Sistem tepsisi: pencere kapatılınca arka planda çok az bellekle çalışma; tepsiden açma, tarama ve çıkış.
+- Windows açılışında arka planda (tepside) başlatma seçeneği.
+- Özgün uygulama logosu ve ikonları.
+
+### Düzeltildi
+
+- Klasörü silinmiş ama manifesti kalmış oyunlar artık kurulu görünmüyor.
+
 ## [0.2.0] - 2026-10-05
 
 ### Eklendi

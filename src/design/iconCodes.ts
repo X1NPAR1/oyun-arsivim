@@ -32,6 +32,17 @@ export const ICON_CODES = {
   command: { regular: 0xe1c4, fill: 0xe1c4 },
   "arrows-clockwise": { regular: 0xe094, fill: 0xe094 },
   "file-text": { regular: 0xe23a, fill: 0xe23a },
+  "download-simple": { regular: 0xe20c, fill: 0xe20c },
+  monitor: { regular: 0xe32e, fill: 0xe32e },
+  prohibit: { regular: 0xe3de, fill: 0xe3de },
+  tray: { regular: 0xe4aa, fill: 0xe4aa },
+  power: { regular: 0xe3da, fill: 0xe3da },
+  cpu: { regular: 0xe610, fill: 0xe610 },
+  memory: { regular: 0xe9c4, fill: 0xe9c4 },
+  gauge: { regular: 0xe628, fill: 0xe628 },
+  "rocket-launch": { regular: 0xe3fe, fill: 0xe3fe },
+  broom: { regular: 0xec54, fill: 0xec54 },
+  "toggle-right": { regular: 0xe676, fill: 0xe676 },
 } as const;
 
 export type IconName = keyof typeof ICON_CODES;
