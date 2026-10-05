@@ -16,6 +16,8 @@ pub struct Artwork {
     pub logo: Option<String>,
     pub hero: Option<String>,
     pub icon: Option<String>,
+    /// 16:9 tam ekran sahne görseli (Steam mağaza ekran görüntüsü, 1920×1080).
+    pub backdrop: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,6 +26,7 @@ pub enum Kind {
     Logo,
     Hero,
     Icon,
+    Backdrop,
 }
 
 impl Kind {
@@ -31,8 +34,10 @@ impl Kind {
         match self {
             Kind::Cover => "cover.jpg",
             Kind::Logo => "logo.png",
-            Kind::Hero => "hero.jpg",
+            // 2x sürüm: tam ekran sahnede bulanık görünmesin (eski 1x önbellek ad değişikliğiyle yenilenir).
+            Kind::Hero => "hero2x.jpg",
             Kind::Icon => "icon.png",
+            Kind::Backdrop => "backdrop.jpg",
         }
     }
 }
@@ -132,6 +137,7 @@ impl ArtworkStore {
             logo: Self::existing(self.file(game.platform, &key, Kind::Logo)),
             hero: Self::existing(self.file(game.platform, &key, Kind::Hero)),
             icon: Self::existing(self.file(game.platform, &key, Kind::Icon)),
+            backdrop: Self::existing(self.file(game.platform, &key, Kind::Backdrop)),
         }
     }
 
@@ -158,6 +164,7 @@ impl ArtworkStore {
                 (
                     Kind::Hero,
                     vec![
+                        format!("{STEAM_CDN}/{id}/library_hero_2x.jpg"),
                         format!("{STEAM_CDN}/{id}/library_hero.jpg"),
                         format!("{STEAM_CDN}/{id}/header.jpg"),
                     ],
@@ -166,6 +173,8 @@ impl ArtworkStore {
             for (kind, urls) in sources {
                 changed |= self.download(&self.file(game.platform, &key, kind), &urls, fetcher);
             }
+            changed |=
+                self.store_backdrop(id, &self.file(game.platform, &key, Kind::Backdrop), fetcher);
             changed |= self.store_header_fallback(
                 id,
                 &self.file(game.platform, &key, Kind::Hero),
@@ -187,6 +196,37 @@ impl ArtworkStore {
             }
         }
         changed
+    }
+
+    /// Tam ekran sahne için 16:9 görsel: mağazanın ilk ekran görüntüsü (1920×1080). Hero görselleri
+    /// ~3:1 olduğundan pencereyi doldururken yanlardan çok kırpılıyordu. Bir kez denenir.
+    fn store_backdrop(&self, appid: &str, target: &Path, fetcher: &dyn Fetcher) -> bool {
+        let tried = PathBuf::from(format!("{}.store", target.display()));
+        if target.is_file() || tried.is_file() {
+            return false;
+        }
+        let url = format!(
+            "https://store.steampowered.com/api/appdetails?appids={appid}&filters=screenshots"
+        );
+        let shot = match fetcher.get(&url) {
+            Ok(Some(body)) => serde_json::from_slice::<serde_json::Value>(&body)
+                .ok()
+                .and_then(|v| {
+                    v[appid]["data"]["screenshots"][0]["path_full"]
+                        .as_str()
+                        .map(str::to_owned)
+                }),
+            Ok(None) => None,
+            Err(err) => {
+                tracing::debug!(appid, %err, "mağaza API'sine ulaşılamadı");
+                return false; // ağ hatası: sonra yeniden dene
+            }
+        };
+        let _ = std::fs::write(&tried, b"");
+        match shot {
+            Some(url) => self.download(target, &[url], fetcher),
+            None => false,
+        }
     }
 
     /// Yeni Steam oyunlarının görselleri karma (hash) içeren adreslerdedir ve eski CDN yolunda yoktur.
@@ -246,6 +286,19 @@ impl ArtworkStore {
         false
     }
 
+    /// Eski sürümlerin bıraktığı 1x hero önbelleğini siler (yerini hero2x aldı).
+    pub fn cleanup_legacy(&self) {
+        let Ok(entries) = std::fs::read_dir(&self.dir) else {
+            return;
+        };
+        for e in entries.flatten() {
+            let name = e.file_name().to_string_lossy().into_owned();
+            if name.contains("_hero.jpg") {
+                let _ = std::fs::remove_file(e.path());
+            }
+        }
+    }
+
     /// Masaüstü kısayolu için üretilen .ico dosyasının yolu.
     pub fn shortcut_icon_path(&self, game: &Game) -> PathBuf {
         let _ = std::fs::create_dir_all(&self.dir);
@@ -259,7 +312,13 @@ impl ArtworkStore {
     /// Elle eklenen oyun silinince görsellerini de temizler.
     pub fn remove_for(&self, game: &Game) {
         let key = Self::key(game);
-        for kind in [Kind::Cover, Kind::Logo, Kind::Hero, Kind::Icon] {
+        for kind in [
+            Kind::Cover,
+            Kind::Logo,
+            Kind::Hero,
+            Kind::Icon,
+            Kind::Backdrop,
+        ] {
             let p = self.file(game.platform, &key, kind);
             let _ = std::fs::remove_file(Self::missing_marker(&p));
             let _ = std::fs::remove_file(p);
@@ -377,13 +436,18 @@ mod store_fallback_tests {
     impl Fetcher for Fake {
         fn get(&self, url: &str) -> Result<Option<Vec<u8>>, String> {
             self.0.lock().unwrap().push(url.to_owned());
+            if url.contains("filters=screenshots") {
+                return Ok(Some(
+                    br#"{"9":{"success":true,"data":{"screenshots":[{"path_full":"https://x/ss.jpg"}]}}}"#.to_vec(),
+                ));
+            }
             if url.contains("appdetails") {
                 return Ok(Some(
                     br#"{"9":{"success":true,"data":{"header_image":"https://x/hdr.jpg"}}}"#
                         .to_vec(),
                 ));
             }
-            if url == "https://x/hdr.jpg" {
+            if url == "https://x/hdr.jpg" || url == "https://x/ss.jpg" {
                 let mut out = std::io::Cursor::new(Vec::new());
                 image::RgbaImage::new(2, 2)
                     .write_to(&mut out, image::ImageFormat::Png)
@@ -415,6 +479,10 @@ mod store_fallback_tests {
         let fake = Fake(Mutex::new(vec![]));
         store.ensure(&game, &fake);
         assert!(store.cached(&game).hero.is_some());
+        assert!(
+            store.cached(&game).backdrop.is_some(),
+            "16:9 ekran görüntüsü sahne görseli olur"
+        );
         // Mağaza API'si yalnız bir kez çağrılır.
         let n = fake.0.lock().unwrap().len();
         store.ensure(&game, &fake);

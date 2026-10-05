@@ -1,3 +1,4 @@
+import { EMPTY_PLAYTIME } from "../test/fixtures";
 import type { GameView } from "../ipc/library";
 import { showcaseOrder } from "./ordering";
 
@@ -9,7 +10,8 @@ const base = {
   sizeBytes: null,
   addedAt: 0,
   removedAt: null,
-  art: { cover: null, logo: null, hero: null, icon: null },
+  art: { cover: null, logo: null, hero: null, icon: null, backdrop: null },
+  playtime: EMPTY_PLAYTIME,
 };
 const g = (id: number, title: string, lastPlayed: number | null, installed = true): GameView => ({
   ...base,

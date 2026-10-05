@@ -12,6 +12,7 @@ use crate::artwork::{Artwork, ArtworkStore, HttpFetcher};
 use crate::detectors::{self, Platform};
 use crate::game_actions::{self, PlatformAction};
 use crate::library::{self, Game, SyncReport};
+use crate::playtime::{self, HourRow, PlaytimeSummary, SessionRow};
 use crate::settings::{self, Settings};
 
 pub const EVENT_LIBRARY_CHANGED: &str = "library://changed";
@@ -30,6 +31,7 @@ pub struct GameView {
     #[serde(flatten)]
     pub game: Game,
     pub art: Artwork,
+    pub playtime: PlaytimeSummary,
 }
 
 /// Komut hataları arayüze düz metin olarak gider (toast'ta gösterilir).
@@ -63,11 +65,13 @@ pub fn now() -> i64 {
 fn views(state: &AppState) -> CmdResult<Vec<GameView>> {
     let conn = state.db.lock().map_err(|_| CommandError::Lock)?;
     let games = library::list(&conn)?;
+    let mut times = playtime::summary_all(&conn, now()).map_err(library::LibraryError::from)?;
     drop(conn);
     Ok(games
         .into_iter()
         .map(|game| GameView {
             art: state.artwork.cached(&game),
+            playtime: times.remove(&game.id).unwrap_or_default(),
             game,
         })
         .collect())
@@ -95,7 +99,13 @@ pub fn run_scan(app: &AppHandle, state: &SharedState) -> CmdResult<SyncReport> {
         }
         let report = {
             let mut conn = state.db.lock().map_err(|_| CommandError::Lock)?;
-            library::sync(&mut conn, &detected, &scanned, now())?
+            let report = library::sync(&mut conn, &detected, &scanned, now())?;
+            // Steam oynama sürelerini (yerel localconfig.vdf) her taramada tazele.
+            if let Some(root) = detectors::steam::steam_root_from_registry() {
+                let data = detectors::steam_playtime::read_all(&root);
+                playtime::apply_steam_import(&conn, &data).map_err(library::LibraryError::from)?;
+            }
+            report
         };
         tracing::info!(?report, "kütüphane senkronlandı");
         let _ = app.emit(EVENT_LIBRARY_CHANGED, ());
@@ -159,6 +169,7 @@ pub async fn add_manual_game(
         let _ = app.emit(EVENT_LIBRARY_CHANGED, ());
         Ok(GameView {
             art: state.artwork.cached(&game),
+            playtime: PlaytimeSummary::default(),
             game,
         })
     })
@@ -320,4 +331,33 @@ pub fn open_game_folder(state: State<'_, SharedState>, id: i64) -> CmdResult<()>
     }
     tauri_plugin_opener::open_path(&game.install_dir, None::<&str>)
         .map_err(|e| CommandError::Action(e.to_string()))
+}
+
+// ───────────── İstatistik ─────────────
+
+/// Saatlik (UTC saat numarası) aktif/AFK süreleri; yerel gün/saat dağılımı arayüzde hesaplanır.
+#[tauri::command]
+pub fn playtime_hourly(
+    state: State<'_, SharedState>,
+    from_hour: i64,
+    to_hour: i64,
+    game_id: Option<i64>,
+) -> CmdResult<Vec<HourRow>> {
+    let conn = state.db.lock().map_err(|_| CommandError::Lock)?;
+    Ok(playtime::hourly_rows(&conn, from_hour, to_hour, game_id)
+        .map_err(library::LibraryError::from)?)
+}
+
+#[tauri::command]
+pub fn playtime_sessions(
+    state: State<'_, SharedState>,
+    from: i64,
+    to: i64,
+    game_id: Option<i64>,
+) -> CmdResult<Vec<SessionRow>> {
+    let conn = state.db.lock().map_err(|_| CommandError::Lock)?;
+    Ok(
+        playtime::sessions_between(&conn, from, to, game_id)
+            .map_err(library::LibraryError::from)?,
+    )
 }

@@ -49,19 +49,34 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 | Windows açılışı        | Açınca `HKCU\…\Run` = `oyun-arsivim.exe --hidden`, kapatınca kayıt silindi                                         |
 | Masaüstü kısayolu      | Sağ tık → `Counter-Strike 2.url` (`steam://rungameid/730`, ikonlu) oluştu; test sonrası silindi                    |
 
+### Faz 4 — 2026-10-05
+
+| Kontrol           | Sonuç                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| cargo test        | 49/49 GEÇTİ (Steam süre ayrıştırma, saat bölme, oturum yaşam döngüsü, takip durum makinesi, eşleyici, günlük)                                                            |
+| Vitest            | 40/40 GEÇTİ (toplama, içgörüler, eksen adımı, özet)                                                                                                                      |
+| Gerçek takip      | Test oyunu (ping.exe kopyası, Türkçe yol) diyalogdan eklendi, çalıştırıldı → oturum, saatlik süre, istatistik ve günlük kaydı doğrulandı; ardından test oyunu kaldırıldı |
+| Steam içe aktarma | 14 oyun, toplam 19.585 sa; CS2 5.979 sa, son 2 hafta 12 sa 48 dk                                                                                                         |
+| Vitrin            | 3 hızlı → basışından 1'i uygulandı (kilit); görsel 10 sn merkez yakınlaşma; 10. sn'de otomatik geçiş                                                                     |
+| Tam ekran         | 1920×1080 ana sayfa / kütüphane / istatistik düzenleri bozulmasız                                                                                                        |
+
 ## Bulunan ve çözülen hatalar
 
-| #   | Faz | Hata                                                           | Regresyon koruması                              | Çözüm                                                 |
-| --- | --- | -------------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------- |
-| 1   | 1   | LNK1104 msvcrt.lib                                             | cargo build                                     | Linker/SDK yolları makine cargo config'ine sabitlendi |
-| 2   | 1   | WiX LGHT0311 (ş, 1252)                                         | release build (CI)                              | MSI dili tr-TR                                        |
-| 3   | 1   | Vitest 5 reddedilen `vi.fn` sonucu test hatası                 | `App.test.tsx`                                  | Düz fonksiyon mock                                    |
-| 4   | 2   | Win10'da sert pencere köşeleri + gölgenin dikdörtgen çerçevesi | `review/faz-02/kutuphane-v2.png`                | Win10'da gölge kapalı, kabuk 16px yuvarlatır          |
-| 5   | 2   | Yerel kaydırma çubuğu okları tasarıma aykırı                   | görsel inceleme                                 | İnce, oksuz `::-webkit-scrollbar`                     |
-| 6   | 2   | Kullanıcı: degradeler/ışımalar "yapay zekâ hissi" veriyor      | `review/faz-02/v3-*.png`                        | Nötr grafit palet; ışıma ve renkli küreler kaldırıldı |
-| 7   | 3   | Klasörü silinmiş GTA V kurulu görünüyordu                      | `epic::scans_directory…`, `steam::finds_games…` | Kurulum klasörü varlık kontrolü                       |
-| 8   | 3   | notepad.exe ikonu çıkarılamadı (.mun)                          | `icon::extracts_icon_from_real_system_exe`      | Shell IShellItemImageFactory yedeği                   |
-| 9   | 3   | Wallpaper Engine oyun olarak listeleniyordu                    | `steam` filtre listesi                          | Yazılım appid'leri elendi                             |
+| #   | Faz | Hata                                                           | Regresyon koruması                                  | Çözüm                                                 |
+| --- | --- | -------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| 1   | 1   | LNK1104 msvcrt.lib                                             | cargo build                                         | Linker/SDK yolları makine cargo config'ine sabitlendi |
+| 2   | 1   | WiX LGHT0311 (ş, 1252)                                         | release build (CI)                                  | MSI dili tr-TR                                        |
+| 3   | 1   | Vitest 5 reddedilen `vi.fn` sonucu test hatası                 | `App.test.tsx`                                      | Düz fonksiyon mock                                    |
+| 4   | 2   | Win10'da sert pencere köşeleri + gölgenin dikdörtgen çerçevesi | `review/faz-02/kutuphane-v2.png`                    | Win10'da gölge kapalı, kabuk 16px yuvarlatır          |
+| 5   | 2   | Yerel kaydırma çubuğu okları tasarıma aykırı                   | görsel inceleme                                     | İnce, oksuz `::-webkit-scrollbar`                     |
+| 6   | 2   | Kullanıcı: degradeler/ışımalar "yapay zekâ hissi" veriyor      | `review/faz-02/v3-*.png`                            | Nötr grafit palet; ışıma ve renkli küreler kaldırıldı |
+| 7   | 3   | Klasörü silinmiş GTA V kurulu görünüyordu                      | `epic::scans_directory…`, `steam::finds_games…`     | Kurulum klasörü varlık kontrolü                       |
+| 8   | 3   | notepad.exe ikonu çıkarılamadı (.mun)                          | `icon::extracts_icon_from_real_system_exe`          | Shell IShellItemImageFactory yedeği                   |
+| 9   | 3   | Wallpaper Engine oyun olarak listeleniyordu                    | `steam` filtre listesi                              | Yazılım appid'leri elendi                             |
+| 10  | 4   | Takipçi hiç kayıt yapmıyordu (i64 taşması)                     | `tracker::matcher_refresh_schedule_never_overflows` | `Option<i64>` + `saturating_sub`                      |
+| 11  | 4   | Tek günlük veriyle "en az Salı oynuyorsun"                     | `aggregate` "en sessiz gün" testi                   | ≥3 oynanan gün şartı                                  |
+| 12  | 4   | Grafik ekseninde tekrar eden etiketler                         | `niceStep` testi                                    | Yuvarlak süre adımları                                |
+| 13  | 4   | Vitrinde arka plan logodan sonra geliyordu                     | görsel zaman çizelgesi                              | Önceden çözme + eşzamanlı değişim                     |
 
 ## Tasarım değerlendirmeleri
 

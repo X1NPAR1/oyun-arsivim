@@ -5,7 +5,10 @@ mod detectors;
 mod game_actions;
 mod icon;
 mod library;
+mod logging;
+mod playtime;
 mod settings;
+mod tracker;
 mod tray;
 mod window_style;
 
@@ -32,6 +35,17 @@ impl AppInfo {
             version: env!("CARGO_PKG_VERSION").to_owned(),
         }
     }
+}
+
+/// Günlük bekçisi uygulama boyunca yaşamalı (düşerse son kayıtlar kaybolur).
+struct LogGuard(#[allow(dead_code)] Option<tracing_appender::non_blocking::WorkerGuard>);
+
+/// Günlük klasörü ("Günlük klasörünü aç" için).
+pub(crate) struct LogDir(pub(crate) std::path::PathBuf);
+
+#[tauri::command]
+fn open_log_dir(dir: tauri::State<'_, LogDir>) -> Result<(), String> {
+    tauri_plugin_opener::open_path(&dir.0, None::<&str>).map_err(|e| e.to_string())
 }
 
 /// Etkin pencere arka planı; pencere her (yeniden) oluşturulduğunda güncellenir.
@@ -77,11 +91,18 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            let data = app.path().app_local_data_dir()?;
+            let logs = logging::log_dir(&data);
+            app.manage(LogGuard(logging::init(&logs)));
+            app.manage(LogDir(logs));
             app.manage(BackdropState(Mutex::new(Backdrop::None)));
             app.manage(tray::QuitFlag(AtomicBool::new(false)));
             let state = init_state(app)?;
+            state.artwork.cleanup_legacy();
             app.manage(state.clone());
             tray::build(app.handle())?;
+            // Oyun süresi takibi pencereden bağımsız çalışır (tepsideyken de).
+            tracker::spawn(app.handle().clone(), state.clone());
 
             // Windows açılışında `--hidden` ile başlatıldıysa pencere açılmaz, yalnız tepside çalışır.
             if !tray::started_hidden() {
@@ -100,6 +121,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             app_info,
             window_backdrop,
+            open_log_dir,
             commands::list_games,
             commands::scan_library,
             commands::add_manual_game,
@@ -112,6 +134,8 @@ pub fn run() {
             commands::install_game,
             commands::create_desktop_shortcut,
             commands::open_game_folder,
+            commands::playtime_hourly,
+            commands::playtime_sessions,
         ])
         .build(tauri::generate_context!());
 

@@ -5,6 +5,23 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.4.0] - 2026-10-05
+
+### Eklendi
+
+- Steam oynama sürelerinin otomatik içe aktarılması (toplam ve son 2 hafta).
+- Oyun süresi takibi: oyun açılınca oturum başlar, kapanınca biter; uygulama tepsideyken de çalışır.
+- AFK tespiti (klavye, fare ve oyun kolu); uyku/askıya alma süresi sayılmaz.
+- Kartlarda toplam oynama süresi ve bu haftaki süre.
+- Ayrıntılı istatistikler: oyun seçimi, 7/30/90/365 gün, aktif ve AFK süre, günün saatleri, haftanın günleri, yoğunluk haritası, içgörüler, tüm zamanların en çok oynananları, oturum geçmişi.
+- Ana sayfa: tam pencere sinematik sahne, yavaşça yakınlaşan tam ekran oyun görselleri, yumuşak geçişler, haftalık özet.
+- Günlük dosyaları ve Ayarlar'da "Günlük klasörünü aç".
+
+### Değişti
+
+- Ana sayfa görselleri artık kırpılmıyor (16:9 mağaza görselleri, yüksek çözünürlük).
+- Geçişler sırasında art arda komutlar yok sayılıyor; geçişler üst üste binmiyor.
+
 ## [0.3.0] - 2026-10-05
 
 ### Eklendi

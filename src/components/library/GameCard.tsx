@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { duration, ease, scaleDuration, spring, staggerDelay } from "../../design/motion";
 import { artUrl, formatBytes, logoOf, PLATFORM_LABELS, type GameView } from "../../ipc/library";
+import { formatDuration } from "../../stats/aggregate";
 import { useMotionLevel } from "../../stores/ui";
 import { Icon } from "../Icon";
 
@@ -23,7 +24,18 @@ export function GameCard({ game, index, onPlay, onRemove, onContextMenu }: GameC
   const logo = logoOf(game);
   const banner = artUrl(game.art.hero);
   const removed = !game.installed;
-  const meta = [PLATFORM_LABELS[game.platform], formatBytes(game.sizeBytes)].filter(Boolean);
+  const pt = game.playtime;
+  const meta = [
+    PLATFORM_LABELS[game.platform],
+    pt.totalSeconds > 0 ? formatDuration(pt.totalSeconds) : formatBytes(game.sizeBytes),
+  ].filter(Boolean);
+  // Bu hafta: kendi ölçümümüz; yoksa Steam'in son 2 hafta bilgisi.
+  const recent =
+    pt.weekSeconds > 0
+      ? `Bu hafta ${formatDuration(pt.weekSeconds)}`
+      : pt.platformTwoWeeksMinutes
+        ? `Son 2 hafta ${formatDuration(pt.platformTwoWeeksMinutes * 60)}`
+        : null;
 
   // Eğim ve parlama: React durumunu değil CSS değişkenlerini günceller (her harekette yeniden çizim yok).
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -144,6 +156,7 @@ export function GameCard({ game, index, onPlay, onRemove, onContextMenu }: GameC
           {game.title}
         </h3>
         <p className="game-card__sub">{meta.join(" · ")}</p>
+        {recent && <p className="game-card__recent">{recent}</p>}
       </div>
     </motion.article>
   );

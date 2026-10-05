@@ -24,6 +24,26 @@ const MIGRATIONS: &[&str] = &[
     CREATE INDEX idx_games_installed ON games (installed);",
     // v2 — ayarlar (anahtar → JSON)
     "CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);",
+    // v3 — oynama süresi: platform süreleri, oturumlar, saatlik kovalar (aktif / AFK)
+    "ALTER TABLE games ADD COLUMN platform_minutes INTEGER;
+    ALTER TABLE games ADD COLUMN platform_2wks_minutes INTEGER;
+    CREATE TABLE sessions (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id        INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+        started_at     INTEGER NOT NULL,
+        ended_at       INTEGER NOT NULL,
+        active_seconds INTEGER NOT NULL DEFAULT 0,
+        idle_seconds   INTEGER NOT NULL DEFAULT 0,
+        open           INTEGER NOT NULL DEFAULT 1
+    );
+    CREATE INDEX idx_sessions_game ON sessions (game_id, started_at);
+    CREATE TABLE playtime_hourly (
+        game_id        INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+        hour           INTEGER NOT NULL,
+        active_seconds INTEGER NOT NULL DEFAULT 0,
+        idle_seconds   INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (game_id, hour)
+    );",
 ];
 
 #[derive(Debug, thiserror::Error)]

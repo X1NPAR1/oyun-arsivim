@@ -1,3 +1,4 @@
+import { EMPTY_PLAYTIME } from "../test/fixtures";
 import { vi } from "vitest";
 import { formatBytes, formatRelative, logoOf, type GameView } from "./library";
 
@@ -20,7 +21,8 @@ function game(art: Partial<GameView["art"]>): GameView {
     installed: true,
     addedAt: 0,
     removedAt: null,
-    art: { cover: null, logo: null, hero: null, icon: null, ...art },
+    art: { cover: null, logo: null, hero: null, icon: null, backdrop: null, ...art },
+    playtime: EMPTY_PLAYTIME,
   };
 }
 

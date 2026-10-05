@@ -18,18 +18,21 @@ Lisansı belirsiz hiçbir şey kullanılmaz. Yeni bağımlılık eklenince bu do
 | auto-launch 0.6 (autostart bağımlılığı)               | MIT                                               | HKCU\…\Run kaydı                                             |
 | thiserror 2, tracing 0.1                              | MIT / Apache-2.0                                  | Hata türleri, günlükleme                                     |
 | tempfile 3 (yalnız test)                              | MIT / Apache-2.0                                  | Geçici test klasörleri                                       |
+| sysinfo 0.38                                          | MIT                                               | Çalışan süreçler (oyun süresi takibi)                        |
+| tracing-subscriber 0.3, tracing-appender 0.2          | MIT                                               | Dönen günlük dosyaları                                       |
 
 ## Çalışma zamanı (arayüz)
 
-| Paket                                          | Lisans           | Kullanım           |
-| ---------------------------------------------- | ---------------- | ------------------ |
-| react, react-dom 19                            | MIT              | Arayüz             |
-| @tauri-apps/api 2, @tauri-apps/plugin-opener 2 | MIT / Apache-2.0 | IPC                |
-| motion 14 (Framer Motion)                      | MIT              | Animasyonlar       |
-| react-router 8                                 | MIT              | Sayfa yönlendirme  |
-| zustand 5                                      | MIT              | Arayüz durumu      |
-| @tanstack/react-query 5                        | MIT              | IPC veri önbelleği |
-| tailwindcss 4, @tailwindcss/vite               | MIT              | Stil               |
+| Paket                                          | Lisans           | Kullanım                         |
+| ---------------------------------------------- | ---------------- | -------------------------------- |
+| react, react-dom 19                            | MIT              | Arayüz                           |
+| @tauri-apps/api 2, @tauri-apps/plugin-opener 2 | MIT / Apache-2.0 | IPC                              |
+| motion 14 (Framer Motion)                      | MIT              | Animasyonlar                     |
+| react-router 8                                 | MIT              | Sayfa yönlendirme                |
+| zustand 5                                      | MIT              | Arayüz durumu                    |
+| @tanstack/react-query 5                        | MIT              | IPC veri önbelleği               |
+| tailwindcss 4, @tailwindcss/vite               | MIT              | Stil                             |
+| chart.js 4                                     | MIT              | Canvas grafikler (istatistikler) |
 
 ## Geliştirme araçları
 
@@ -60,6 +63,6 @@ Lisansı belirsiz hiçbir şey kullanılmaz. Yeni bağımlılık eklenince bu do
 | Phosphor Icons 2.1 — `@phosphor-icons/web`                      | MIT         | Yalnızca `Phosphor.woff2` ve `Phosphor-Fill.woff2` alınır (`scripts/vendor-icons.mjs`); paketteki SVG font kullanılmaz |
 
 | Oyun Arşivim logosu (`assets/brand/`, `scripts/render-logo.ps1`) | Projeye ait (MIT) | Betikle çizilen özgün PNG; Tauri ikonları bundan üretilir |
-| Steam kapak/logo/hero görselleri | Valve / yayıncılar | Yalnızca kullanıcının kendi kütüphanesindeki oyunlar için yerel önbelleğe indirilir, depoya girmez, yeniden dağıtılmaz |
+| Steam kapak/logo/hero ve mağaza ekran görüntüleri | Valve / yayıncılar | Yalnızca kullanıcının kendi kütüphanesindeki oyunlar için yerel önbelleğe indirilir, depoya girmez, yeniden dağıtılmaz |
 
 Planlanan: Ludusavi manifest (MIT, Faz 11); Steam CDN görselleri yalnızca kullanıcının kendi kütüphanesi için önbelleğe alınır, yeniden dağıtılmaz (Faz 7).

@@ -1,6 +1,6 @@
 [package]
 name = "oyun-arsivim"
-version = "0.3.0"
+version = "0.4.0"
 description = "Windows için akıllı oyun kütüphanesi ve başlatıcı"
 authors = ["Oyun Arşivim"]
 license = "MIT"
@@ -28,9 +28,12 @@ image = { version = "0.25", default-features = false, features = ["png", "jpeg",
 tauri-plugin-dialog = "2"
 tauri-plugin-autostart = "2.7.0"
 tauri-plugin-single-instance = "2.5.2"
+sysinfo = { version = "0.38.4", default-features = false, features = ["system"] }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "env-filter", "ansi"] }
+tracing-appender = "0.2.5"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.61.3", features = ["Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_Shell", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
+windows = { version = "0.61.3", features = ["Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_Shell", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_SystemInformation", "Win32_UI_Input_XboxController"] }
 winreg = "0.55"
 
 [profile.release]
