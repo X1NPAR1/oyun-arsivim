@@ -5,6 +5,18 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.6.0] - 2026-10-06
+
+### Eklendi
+
+- Açılış ekranı: logo animasyonu, dönen ilerleme çemberi, gerçek yüzde ve adım adım durum metinleri.
+- Açılışta bir sorun olursa anlaşılır hata mesajı, "Tekrar dene" ve "Günlüğü aç".
+
+### Değişti
+
+- Ana pencere içerik hazır olunca açılır; açılış ekranı yumuşakça kapanır (boş/beyaz ekran yok).
+- Ana sayfada oyunlar arası geçiş kilidi 0,5 saniyeye indirildi.
+
 ## [0.5.0] - 2026-10-05
 
 ### Eklendi

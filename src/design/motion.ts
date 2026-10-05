@@ -73,7 +73,7 @@ export const showcase = {
   /** Görseller arası çapraz geçiş. */
   crossfadeS: 1.8,
   /** Geçiş sürerken yeni gezinme komutları yok sayılır. */
-  navLockMs: 1_800,
+  navLockMs: 500,
   /** Yakınlaşma: %100 → %112. */
   zoomTo: 1.12,
 } as const;

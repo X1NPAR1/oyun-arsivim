@@ -1,6 +1,6 @@
 [package]
 name = "oyun-arsivim"
-version = "0.5.0"
+version = "0.6.0"
 description = "Windows için akıllı oyun kütüphanesi ve başlatıcı"
 authors = ["Oyun Arşivim"]
 license = "MIT"

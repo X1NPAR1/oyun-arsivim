@@ -117,7 +117,7 @@ pub fn run_scan(app: &AppHandle, state: &SharedState) -> CmdResult<SyncReport> {
     Ok(report)
 }
 
-fn fetch_artwork(app: &AppHandle, state: &SharedState) {
+pub fn fetch_artwork(app: &AppHandle, state: &SharedState) {
     let games = match state.db.lock() {
         Ok(conn) => library::list(&conn).unwrap_or_default(),
         Err(_) => return,

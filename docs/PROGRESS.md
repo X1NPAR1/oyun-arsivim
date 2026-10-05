@@ -67,9 +67,18 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] Oyuna özel performans modu: öncelik, güç planı, RAM temizliği, bildirim susturma, uygulama kapatma; otomatik uygula/geri al, çökme kurtarma
 - [x] Sağ tık → "Performans modu…" kısayolu
 - [x] Gerçek sistem testleri: 7 kullanıcı ayarı aç/kapa/geri al, güç planı uygula/geri al, öncelik, uygulama kapatma, uçtan uca profil (tepside)
-- [ ] Kullanıcı doğrulaması: UAC gerektiren 3 ayar + bekleme belleği
+- [ ] Kullanıcı doğrulaması: UAC gerektiren 3 ayar + bekleme belleği (bekliyor)
 
-## Faz 5b — Splash ⬜
+## Faz 6 — Açılış ekranı ✅ (v0.6.0)
+
+- [x] Çerçevesiz, yuvarlak köşeli splash; PNG logo ölçeklenme + parlama
+- [x] Canvas dönen degrade çember + gerçek yüzde sayacı (geri gitmez, hedefi geçmez)
+- [x] Kayan durum metinleri; "Az kaldı" >%80, "Bitmek üzere" >%95, "Hazır!"
+- [x] Rust açılış adımları ağırlıklı ilerleme; ilk açılışta görsel indirme oyun başına
+- [x] Titreşimsiz geçiş: ana pencere ilk karesini boyayınca splash solar
+- [x] Hata ekranı: mesaj, Tekrar dene, Günlüğü aç; uygulama çökmez
+- [x] `--hidden` başlangıçta splash açılmaz
+- [x] Vitrin geçiş kilidi 0,5 sn (kullanıcı isteği)
 
 ## Faz 6 — Veritabanı, ayarlar, günlükleme ⬜
 
