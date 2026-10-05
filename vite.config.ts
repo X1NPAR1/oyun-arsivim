@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import process from "node:process";
 
 const host = process.env.TAURI_DEV_HOST;
@@ -8,7 +9,7 @@ const host = process.env.TAURI_DEV_HOST;
 // Tauri beklentileri: sabit port, Rust hatalarını gizlememek için clearScreen kapalı,
 // src-tauri izlenmez (cargo kendi değişikliklerini izler).
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   clearScreen: false,
   server: {
     port: 1420,
@@ -25,6 +26,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
+    css: false,
     include: ["src/**/*.test.{ts,tsx}"],
   },
 });

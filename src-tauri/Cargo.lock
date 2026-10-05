@@ -2368,13 +2368,14 @@ dependencies = [
 
 [[package]]
 name = "oyun-arsivim"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",
+ "winreg",
 ]
 
 [[package]]

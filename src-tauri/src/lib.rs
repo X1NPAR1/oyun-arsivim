@@ -1,4 +1,10 @@
+mod window_style;
+
+use std::sync::Mutex;
+
 use serde::Serialize;
+use tauri::Manager;
+use window_style::Backdrop;
 
 /// Arayüzün "Hakkında" ve tanılama ekranları için temel uygulama kimliği.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -16,16 +22,32 @@ impl AppInfo {
     }
 }
 
+/// Kurulumda belirlenen pencere arka planı; arayüz buna göre opak/yarı saydam zemin seçer.
+struct BackdropState(Mutex<Backdrop>);
+
 #[tauri::command]
 fn app_info() -> AppInfo {
     AppInfo::current()
+}
+
+#[tauri::command]
+fn window_backdrop(state: tauri::State<'_, BackdropState>) -> Backdrop {
+    state.0.lock().map(|b| *b).unwrap_or(Backdrop::None)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![app_info])
+        .setup(|app| {
+            let backdrop = app
+                .get_webview_window("main")
+                .map(|w| window_style::apply(&w))
+                .unwrap_or(Backdrop::None);
+            app.manage(BackdropState(Mutex::new(backdrop)));
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![app_info, window_backdrop])
         .run(tauri::generate_context!())
         .unwrap_or_else(|err| {
             // Burada henüz pencere yok; stderr'e yazıp süreçten çıkmak tek dürüst seçenek.

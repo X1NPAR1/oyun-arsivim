@@ -22,6 +22,13 @@ Ayrıntı: `docs/ARCHITECTURE.md`. Tasarım: `docs/DESIGN_SYSTEM.md`. Özellikle
 
 ## 3. Fazlar, görevler, bağımlılıklar, kabul kriterleri
 
+> **Revizyon (2026-10-05, kullanıcı isteği):** Tasarım nötr/insan elinden çıkmış bir dile çevrildi; gerçek oyun
+> logolarıyla yatay animasyonlu şerit ve Performans Merkezi öne alındı. Yeni sıra:
+> **Faz 3 = Steam + Epic tespiti + ana sayfa logo şeridi** (eski Faz 5'in dedektörleri + Faz 7'den Steam logo/görselleri),
+> **Faz 4 = Performans Merkezi** (canlı CPU/RAM göstergeleri, RAM temizliği, CPU önceliği, güç planı, Windows Oyun
+> Modu / Game Bar / DVR ve diğer oyun ayarları; eski Faz 12 genişletildi), ardından splash, veritabanı ve kalan fazlar
+> sırayla (eski numaralar +2 kayar; tablo aşağıda eski numaralarla korunur, PROGRESS.md güncel sırayı izler).
+
 | Faz | Görevler                                                                                                                                                                                                                                                   | Bağımlılık | Kabul kriteri                                                                      | Etiket  |
 | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------- | ------- |
 | 1   | Araçlar (Rust→D:, VS BT, WebView2), Tauri+React iskeleti, kalite araçları, hafıza/doküman dosyaları, aitmpl bileşenleri + 4 proje skill'i, GitHub deposu, CI + Release iş akışları, updater anahtarı                                                       | —          | Boş uygulama açılıyor, CI yeşil, v0.1.0 yayınlandı                                 | v0.1.0  |

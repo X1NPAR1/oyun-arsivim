@@ -1,0 +1,94 @@
+/* Tasarım token'ları — tek doğruluk kaynağı docs/DESIGN_SYSTEM.md. Kodda sabit renk/süre yazılmaz. */
+@import "@fontsource-variable/sora/wght.css";
+@import "@fontsource-variable/manrope/wght.css";
+
+@font-face {
+  font-family: "Phosphor";
+  src: url("../assets/fonts/Phosphor.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Phosphor-Fill";
+  src: url("../assets/fonts/Phosphor-Fill.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  /* Renk — nötr grafit. Arayüz renksizdir; renk oyunların kendi görsellerinden gelir. */
+  --c-bg-0: #0f1012;
+  --c-bg-1: #16171a;
+  --c-surface: #1b1c20;
+  --c-surface-hover: #222328;
+  --c-glass: rgba(24, 25, 29, 0.72);
+  --c-glass-strong: rgba(28, 29, 34, 0.9);
+  --c-glass-edge: rgba(255, 255, 255, 0.06);
+  --c-glass-edge-top: rgba(255, 255, 255, 0.09);
+  --c-text-1: #ededee;
+  --c-text-2: #9b9ea6;
+  --c-text-3: #6b6e76;
+  --c-on-light: #0f1012;
+  --c-accent: #4f8ff7;
+  --c-accent-2: #4f8ff7;
+  --c-success: #3fb97a;
+  --c-warning: #e0a63a;
+  --c-danger: #e5534b;
+
+  /* Tipografi */
+  --font-display: "Sora Variable", "Manrope Variable", sans-serif;
+  --font-body: "Manrope Variable", "Sora Variable", sans-serif;
+
+  /* Yarıçap */
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* Derinlik */
+  --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-glow: none;
+  --glass-blur: 24px;
+  --glass-inner: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* Hareket */
+  --dur-fast: 150ms;
+  --dur-base: 240ms;
+  --dur-page: 380ms;
+  --dur-slow: 450ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Yerleşim */
+  --titlebar-h: 40px;
+  --gutter: 12px;
+  --sidebar-w: 84px;
+}
+
+/* Vurgu rengi değişimi yumuşak (dinamik renk, Faz 9). */
+@property --c-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #4f8ff7;
+}
+:root {
+  transition: --c-accent 600ms var(--ease-in-out);
+}
+
+/* Animasyon seviyesi: tam / azaltılmış / kapalı (ayar + prefers-reduced-motion). */
+:root[data-motion="reduced"] {
+  --dur-fast: 75ms;
+  --dur-base: 120ms;
+  --dur-page: 190ms;
+  --dur-slow: 225ms;
+}
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+}

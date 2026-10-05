@@ -5,22 +5,25 @@ koda dökülür; kodda sabit değer yazılmaz.
 
 ## Renk
 
-| Token                                        | Değer                             | Kullanım                                 |
-| -------------------------------------------- | --------------------------------- | ---------------------------------------- |
-| `--c-bg-0`                                   | `#07080d`                         | Pencere zemini                           |
-| `--c-bg-1`                                   | `#0d0f18`                         | Yükseltilmiş zemin                       |
-| `--c-glass`                                  | `rgba(22, 25, 38, 0.55)`          | Cam yüzey dolgusu                        |
-| `--c-glass-strong`                           | `rgba(28, 32, 48, 0.78)`          | Okunabilirlik gereken cam                |
-| `--c-glass-edge`                             | `rgba(255, 255, 255, 0.08)`       | İnce ışık kenarı (üst kenarda 0.14)      |
-| `--c-text-1`                                 | `#eef0f8`                         | Birincil metin (zeminde kontrast 17:1)   |
-| `--c-text-2`                                 | `#a6abc2`                         | İkincil metin (≥ 7:1)                    |
-| `--c-text-3`                                 | `#6e7391`                         | Pasif metin (yalnız büyük metin)         |
-| `--c-accent`                                 | dinamik, varsayılan `#7c5cff`     | Vurgu; oyunun baskın renginden türetilir |
-| `--c-accent-2`                               | varsayılan `#22d3ee`              | Degrade ikinci durak                     |
-| `--c-success` / `--c-warning` / `--c-danger` | `#34d399` / `#fbbf24` / `#f87171` | Durum                                    |
+**İlke:** Arayüz renksizdir (nötr grafit); renk yalnızca oyunların kendi görsellerinden gelir. Neon degrade,
+ışıma (glow), renkli arka plan küreleri yasak — "şablon/yapay zekâ" görünümü yerine konsol arayüzleri
+(PS5, Xbox, Steam Big Picture) gibi sakin ve içerik odaklı.
 
-Dinamik vurgu: kapaktan baskın renk → HSL; doygunluk 55–85 %, açıklık 55–68 % aralığına kıstırılır
-(kontrast güvencesi), 600 ms `--ease-smooth` ile geçiş.
+| Token                                        | Değer                             | Kullanım                                                           |
+| -------------------------------------------- | --------------------------------- | ------------------------------------------------------------------ |
+| `--c-bg-0`                                   | `#0f1012`                         | Pencere zemini (üstte `#131417`'den çok hafif geçiş)               |
+| `--c-bg-1`                                   | `#16171a`                         | Yükseltilmiş zemin                                                 |
+| `--c-surface` / `--c-surface-hover`          | `#1b1c20` / `#222328`             | Düz yüzeyler                                                       |
+| `--c-glass`                                  | `rgba(24, 25, 29, 0.72)`          | Cam yüzey (oyun görseli üstünde)                                   |
+| `--c-glass-edge`                             | `rgba(255, 255, 255, 0.06)`       | İnce kenar (üstte 0.09)                                            |
+| `--c-text-1`                                 | `#ededee`                         | Birincil metin; birincil buton zemini                              |
+| `--c-text-2`                                 | `#9b9ea6`                         | İkincil metin                                                      |
+| `--c-text-3`                                 | `#6b6e76`                         | Etiket/pasif                                                       |
+| `--c-on-light`                               | `#0f1012`                         | Açık zemin üstündeki metin                                         |
+| `--c-accent`                                 | dinamik, varsayılan `#4f8ff7`     | Yalnız odak halkası, seçim, ilerleme; oyunun görselinden türetilir |
+| `--c-success` / `--c-warning` / `--c-danger` | `#3fb97a` / `#e0a63a` / `#e5534b` | Durum                                                              |
+
+Dinamik vurgu: kapaktan baskın renk → HSL; doygunluk 35–65 %, açıklık 55–65 % aralığına kıstırılır, 600 ms geçiş.
 
 ## Tipografi
 
@@ -43,8 +46,7 @@ Dinamik vurgu: kapaktan baskın renk → HSL; doygunluk 55–85 %, açıklık 55
 
 ## Derinlik, gölge, cam
 
-- `--shadow-1`: `0 4px 16px rgba(0,0,0,.35)` · `--shadow-2`: `0 12px 40px rgba(0,0,0,.45)` ·
-  `--shadow-glow`: `0 0 40px color-mix(in oklab, var(--c-accent) 35%, transparent)`.
+- `--shadow-1`: `0 2px 8px rgba(0,0,0,.28)` · `--shadow-2`: `0 10px 30px rgba(0,0,0,.35)` · ışıma gölgesi yok.
 - Cam: `background: var(--c-glass); backdrop-filter: blur(var(--glass-blur)) saturate(140%);`
   `border: 1px solid var(--c-glass-edge)`; üstte 1px iç ışık (`inset 0 1px 0 rgba(255,255,255,.06)`).
   `--glass-blur` 24px (ayardan 0–40px). Bölümler çizgiyle değil boşluk + derinlikle ayrılır.
@@ -71,11 +73,12 @@ Dinamik vurgu: kapaktan baskın renk → HSL; doygunluk 55–85 %, açıklık 55
 
 ## Bileşen kuralları
 
-- **Sidebar:** pencere kenarından 12 px içeride, yüzen cam şerit, `--r-xl`, ikon + etiket, aktif öğe vurgu ışıması.
+- **Sidebar:** pencere kenarından 12 px içeride, yüzen cam şerit, `--r-xl`, ikon + etiket; aktif öğe `rgba(255,255,255,.09)` yüzey + dolu ikon.
+- **Pencere:** Win11'de Mica + OS yuvarlak köşeleri; Win10'da opak degrade zemin, OS gölgesi kapalı, kabuk `--r-md` ile yuvarlatılır (büyütülünce 0).
 - **Başlık çubuğu:** 40 px, sürüklenebilir (`data-tauri-drag-region`), sağda yuvarlak cam pencere düğmeleri
   (kapat hover = danger).
 - **Kart:** oran 2:3, `--r-lg`, alt kısmında kapak renginden degrade + ad; hiçbir zaman düz kutu.
-- **Buton:** birincil = vurgu degradesi + glow, ikincil = cam; `--r-md` veya hap.
+- **Buton:** birincil = açık zemin (`--c-text-1`) + koyu yazı, ikincil = yarı saydam yüzey; hap biçimi. Degrade/ışıma yok.
 - **Giriş alanları:** cam, `--r-sm`, odakta vurgu halkası (2 px, `--c-accent`).
 - **İkonlar:** ikon fontu, 20/24 px, metinle aynı renk; SVG yasak.
 - **Odak göstergesi:** her etkileşimli öğede görünür 2 px halka + 2 px ofset.

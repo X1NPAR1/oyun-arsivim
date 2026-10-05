@@ -1,7 +1,7 @@
 {
   "name": "oyun-arsivim",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Windows için akıllı oyun kütüphanesi ve başlatıcı",
   "license": "MIT",
@@ -20,16 +20,25 @@
     "rust:lint": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings",
     "rust:fmt": "cargo fmt --manifest-path src-tauri/Cargo.toml --check",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm rust:fmt && pnpm rust:lint && pnpm rust:test",
-    "secrets": "node scripts/secret-scan.mjs --all"
+    "secrets": "node scripts/secret-scan.mjs --all",
+    "icons": "node scripts/vendor-icons.mjs && prettier --write src/design/iconCodes.ts"
   },
   "dependencies": {
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource-variable/sora": "^5.3.0",
+    "@phosphor-icons/web": "^2.1.2",
+    "@tanstack/react-query": "^5.104.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
+    "motion": "^14.0.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router": "^8.4.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
@@ -44,6 +53,7 @@
     "globals": "^17.13.0",
     "jsdom": "^30.1.2",
     "prettier": "^3.9.9",
+    "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.0",
     "vite": "^8.0.16",

@@ -2,7 +2,7 @@
 
 Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 
-## Faz 1 — Temel altyapı 🟨
+## Faz 1 — Temel altyapı ✅ (v0.1.0)
 
 - [x] prompt.md okundu, plan yapıldı
 - [x] Rust 1.99 (D:), VS 2022 BT (D:) bağlandı, WebView2 154 doğrulandı, Node/pnpm/git/gh mevcut
@@ -14,38 +14,53 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] aitmpl bileşenleri kuruldu, 4 proje skill'i yazıldı
 - [x] Hafıza/doküman dosyaları
 - [x] Updater imza anahtarı (`D:\OyunArsivim\keys`)
-- [ ] GitHub deposu, secrets, CI yeşil, v0.1.0 release
+- [x] GitHub deposu (private), secrets, CI yeşil, v0.1.0 release
 
-## Faz 2 — Tasarım sistemi ⬜
+## Faz 2 — Tasarım sistemi 🟨
 
-## Faz 3 — Splash ⬜
+- [x] Token'lar: `src/design/tokens.css` (renk, tipografi, yarıçap, gölge, cam, hareket) + `motion.ts`
+- [x] Tailwind 4 teması token'lardan
+- [x] Sora + Manrope gömülü (OFL), Türkçe glifler doğrulandı
+- [x] Phosphor ikon fontu (yalnız woff2), tip güvenli `Icon`
+- [x] Özel başlık çubuğu (sürükleme, küçült/büyüt/kapat)
+- [x] Win11 Mica / Win10 CSS yedeği + yuvarlak pencere köşeleri
+- [x] Yüzen cam sidebar, kayan aktif ışıma
+- [x] Yönlü sayfa geçişleri (ileri sağdan, geri soldan), stagger kart girişi
+- [x] Animasyon seviyesi (sistem/tam/azaltılmış/kapalı) + prefers-reduced-motion
+- [x] Testler (16 arayüz + 5 Rust), gerçek pencerede ekran görüntüleri `review/faz-02/`
+- [x] Kullanıcı geri bildirimiyle nötr tasarıma revizyon (`review/faz-02/v3-*.png`)
+- [ ] Release + CI
 
-## Faz 4 — Veritabanı, ayarlar, günlükleme ⬜
+## Faz 3 — Steam + Epic tespiti, ana sayfa logo şeridi ⬜
 
-## Faz 5 — Steam, Epic, elle ekleme ⬜
+## Faz 4 — Performans Merkezi ⬜
 
-## Faz 6 — Diğer dedektörler, tekilleştirme, izleme ⬜
+## Faz 5 — Splash ⬜
 
-## Faz 7 — Görsel sistemi ⬜
+## Faz 6 — Veritabanı, ayarlar, günlükleme ⬜
 
-## Faz 8 — Kütüphane sayfası ⬜
+## Faz 7 — Elle oyun ekleme ⬜
 
-## Faz 9 — Oyun detay + paylaşılan öğe geçişi ⬜
+## Faz 8 — Diğer dedektörler, tekilleştirme, izleme ⬜
 
-## Faz 10 — Başlatma, süre takibi, tepsi ⬜
+## Faz 9 — Görsel sistemi (SteamGridDB, yedek kapak) ⬜
 
-## Faz 11 — Save yedekleme ⬜
+## Faz 10 — Kütüphane sayfası ⬜
 
-## Faz 12 — Performans modu ⬜
+## Faz 11 — Oyun detay + paylaşılan öğe geçişi ⬜
 
-## Faz 13 — Ana sayfa, öneriler, koleksiyonlar, komut paleti ⬜
+## Faz 12 — Başlatma, süre takibi, tepsi ⬜
 
-## Faz 14 — İstatistikler ⬜
+## Faz 13 — Save yedekleme ⬜
 
-## Faz 15 — Ayarlar + i18n ⬜
+## Faz 14 — Öneriler, koleksiyonlar, komut paleti ⬜
 
-## Faz 16 — Otomatik güncelleme ⬜
+## Faz 15 — İstatistikler ⬜
 
-## Faz 17 — Optimizasyon, erişilebilirlik, dayanıklılık ⬜
+## Faz 16 — Ayarlar + i18n ⬜
 
-## Faz 18 — Cilalama, v1.0.0 ⬜
+## Faz 17 — Otomatik güncelleme ⬜
+
+## Faz 18 — Optimizasyon, erişilebilirlik, dayanıklılık ⬜
+
+## Faz 19 — Cilalama, v1.0.0 ⬜
