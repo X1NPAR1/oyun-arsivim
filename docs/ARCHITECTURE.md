@@ -42,6 +42,18 @@
 | `recommendations`, `insights`, `collections_*`                       | 13     | …                           |
 | `check_update`, `install_update`                                     | 16     | …                           |
 
+## Faz 3–4'te eklenenler
+
+- Modüller: `detectors/{steam,epic,steam_playtime,vdf}`, `db` (migration v1–v3), `library`, `artwork`, `icon`,
+  `game_actions`, `settings`, `tray`, `tracker`, `playtime`, `logging`.
+- Tablolar: `games` (+ `platform_minutes`, `platform_2wks_minutes`), `settings(key, value JSON)`,
+  `sessions(game_id, started_at, ended_at, active_seconds, idle_seconds, open)`,
+  `playtime_hourly(game_id, hour UTC, active_seconds, idle_seconds)`.
+- Komutlar: `list_games`, `scan_library`, `add_manual_game`, `remove_manual_game`, `rename_game`, `launch_game`,
+  `get_settings`, `update_settings`, `uninstall_game`, `install_game`, `create_desktop_shortcut`, `open_game_folder`,
+  `playtime_hourly`, `playtime_sessions`, `open_log_dir`, `window_backdrop`, `app_info`.
+- Arka plan iş parçacıkları: açılış taraması + görsel indirme, `oyun-takipci` (süre takibi).
+
 ## Olaylar
 
 `startup://progress {percent, stepKey, message}` · `startup://error {message, logPath}` · `scan://progress` ·

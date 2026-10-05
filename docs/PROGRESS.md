@@ -46,7 +46,17 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] Özgün logo ve uygulama ikonları
 - [x] Testler: Rust 37, arayüz 27; gerçek sistem taraması; uçtan uca tepsi/kısayol/autostart testleri
 
-## Faz 4 — Oynama süresi (Steam içe aktarma), oturum takibi, AFK, detaylı istatistikler ⬜
+## Faz 4 — Oynama süresi, takip, istatistikler, sinematik ana sayfa ✅ (v0.4.0)
+
+- [x] Steam sürelerinin içe aktarılması (toplam + son 2 hafta, çoklu hesap)
+- [x] Oyun süreci takipçisi (tepsideyken de), AFK (klavye/fare + gamepad), uyku düşme, kesinti toleransı
+- [x] Oturumlar + saatlik aktif/AFK kovaları (migration v3)
+- [x] Kartlarda toplam süre + bu hafta / son 2 hafta
+- [x] İstatistikler: oyun seçici, aralık, KPI'lar, günlük aktif/AFK, saat ve gün dağılımı, ısı haritası, içgörüler, tüm zamanlar sıralaması, oturum tablosu
+- [x] Ana sayfa: tam pencere sahne, 16:9 görseller, 10 sn merkez yakınlaşma, 1,8 sn çapraz geçiş, komut kilidi, haftalık özet şeridi
+- [x] Tam ekran (1920×1080) düzen kontrolü; içerik geniş ekranda ortalı
+- [x] Dönen günlük dosyaları + "Günlük klasörünü aç"
+- [x] Testler: Rust 49, arayüz 40; gerçek takip uçtan uca testi
 
 ## Faz 5 — Performans Merkezi ⬜
 

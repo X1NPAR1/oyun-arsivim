@@ -8,6 +8,18 @@ export interface Artwork {
   logo: string | null;
   hero: string | null;
   icon: string | null;
+  backdrop: string | null;
+}
+
+/** Rust `playtime::PlaytimeSummary`. */
+export interface PlaytimeSummary {
+  totalSeconds: number;
+  trackedSeconds: number;
+  idleSeconds: number;
+  weekSeconds: number;
+  platformMinutes: number | null;
+  platformTwoWeeksMinutes: number | null;
+  sessions: number;
 }
 
 /** Rust `commands::GameView` (camelCase). */
@@ -25,6 +37,7 @@ export interface GameView {
   addedAt: number;
   removedAt: number | null;
   art: Artwork;
+  playtime: PlaytimeSummary;
 }
 
 export interface SyncReport {

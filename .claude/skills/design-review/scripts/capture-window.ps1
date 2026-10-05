@@ -1,4 +1,4 @@
-# Oyun Arşivim penceresinin ekran görüntüsünü review/faz-XX/ altına kaydeder.
+﻿# Oyun Arşivim penceresinin ekran görüntüsünü review/faz-XX/ altına kaydeder.
 # -ClickX/-ClickY (pencereye göre piksel) verilirse önce oraya tıklar; -Burst ile geçiş kareleri alınır.
 param(
   [Parameter(Mandatory)] [string] $Phase,
@@ -21,6 +21,7 @@ Add-Type @'
 using System; using System.Runtime.InteropServices;
 public static class OaWin {
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
   [DllImport("dwmapi.dll")] public static extern int DwmGetWindowAttribute(IntPtr h, int a, out RECT r, int s);
   [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
   [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
@@ -35,7 +36,9 @@ if ($Launch) {
   $proc = Start-Process $exe -PassThru
   Start-Sleep -Seconds $WaitSeconds
 } else {
-  $proc = Get-Process oyun-arsivim -ErrorAction Stop | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
+  # Tek örnek eklentisinin gizli "-siw" penceresi ana pencere değildir.
+  $proc = Get-Process oyun-arsivim -ErrorAction Stop | Where-Object { $_.MainWindowHandle -ne 0 -and $_.MainWindowTitle -notlike '*-siw' } | Select-Object -First 1
+  if (-not $proc) { throw "Oyun Arşivim penceresi açık değil" }
 }
 $proc.Refresh()
 $h = $proc.MainWindowHandle

@@ -1,3 +1,4 @@
+import { EMPTY_PLAYTIME } from "../test/fixtures";
 import type { GameView } from "../ipc/library";
 import { filterGames, searchKey } from "./filter";
 
@@ -15,7 +16,8 @@ function g(id: number, title: string, platform: GameView["platform"], installed 
     installed,
     addedAt: 0,
     removedAt: installed ? null : 1,
-    art: { cover: null, logo: null, hero: null, icon: null },
+    art: { cover: null, logo: null, hero: null, icon: null, backdrop: null },
+    playtime: EMPTY_PLAYTIME,
   };
 }
 

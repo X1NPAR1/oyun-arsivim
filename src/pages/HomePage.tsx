@@ -1,22 +1,19 @@
 import { useMemo } from "react";
 import { Link } from "react-router";
 import { GameShowcase } from "../components/home/GameShowcase";
+import { HomeSummary } from "../components/home/HomeSummary";
 import { Icon } from "../components/Icon";
 import { useGameMenu } from "../hooks/useGameMenu";
 import { useLaunchGame, useLibrary } from "../hooks/useLibrary";
-import { formatBytes } from "../ipc/library";
 import { showcaseOrder } from "../library/ordering";
+import { summarize } from "../library/summary";
 
 export function HomePage() {
   const { data: games = [], isLoading } = useLibrary();
   const launch = useLaunchGame();
   const gameMenu = useGameMenu();
   const ordered = useMemo(() => showcaseOrder(games), [games]);
-  const totalSize = useMemo(
-    () => ordered.reduce((sum, g) => sum + (g.sizeBytes ?? 0), 0),
-    [ordered],
-  );
-  const platformCount = useMemo(() => new Set(ordered.map((g) => g.platform)).size, [ordered]);
+  const summary = useMemo(() => summarize(games), [games]);
 
   if (!isLoading && ordered.length === 0) {
     return (
@@ -48,21 +45,8 @@ export function HomePage() {
         }}
         onContextMenu={gameMenu.openFor}
       />
+      <HomeSummary summary={summary} />
       {gameMenu.menu}
-      <div className="stat-row">
-        <div className="stat glass">
-          <span className="stat__value">{ordered.length}</span>
-          <span className="stat__label">kurulu oyun</span>
-        </div>
-        <div className="stat glass">
-          <span className="stat__value">{platformCount}</span>
-          <span className="stat__label">platform</span>
-        </div>
-        <div className="stat glass">
-          <span className="stat__value">{formatBytes(totalSize) ?? "—"}</span>
-          <span className="stat__label">disk kullanımı</span>
-        </div>
-      </div>
     </div>
   );
 }

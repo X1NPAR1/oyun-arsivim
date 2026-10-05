@@ -94,7 +94,7 @@ fn normalize(p: &Path) -> String {
 }
 
 #[cfg(windows)]
-fn steam_root_from_registry() -> Option<PathBuf> {
+pub fn steam_root_from_registry() -> Option<PathBuf> {
     use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
     use winreg::RegKey;
     let hkcu = RegKey::predef(HKEY_CURRENT_USER)
@@ -111,7 +111,7 @@ fn steam_root_from_registry() -> Option<PathBuf> {
 }
 
 #[cfg(not(windows))]
-fn steam_root_from_registry() -> Option<PathBuf> {
+pub fn steam_root_from_registry() -> Option<PathBuf> {
     None
 }
 

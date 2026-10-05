@@ -1,4 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
 import { motion } from "motion/react";
+import { Icon } from "../components/Icon";
+import { toast } from "../stores/toast";
 import { PageHeader } from "../components/PageHeader";
 import { Toggle } from "../components/Toggle";
 import { spring } from "../design/motion";
@@ -104,6 +107,31 @@ export function SettingsPage() {
               );
             })}
           </div>
+        </div>
+      </section>
+      <section className="settings-group glass" aria-labelledby="settings-data">
+        <h2 id="settings-data" className="text-h3">
+          Veri
+        </h2>
+        <div className="setting-row">
+          <div>
+            <p className="setting-row__title">Günlük dosyaları</p>
+            <p className="setting-row__hint">
+              Hata bildirimi için son 7 günün günlükleri. Kişisel klasör yolları maskelenir.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn--glass"
+            onClick={() => {
+              invoke("open_log_dir").catch((e: unknown) => {
+                toast.error("Klasör açılamadı", String(e));
+              });
+            }}
+          >
+            <Icon name="folder-open" size={18} />
+            Günlük klasörünü aç
+          </button>
         </div>
       </section>
     </div>

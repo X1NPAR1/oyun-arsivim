@@ -1,7 +1,7 @@
 {
   "name": "oyun-arsivim",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "description": "Windows için akıllı oyun kütüphanesi ve başlatıcı",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.8.1",
     "@tauri-apps/plugin-opener": "^2",
+    "chart.js": "^4.5.1",
     "motion": "^14.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

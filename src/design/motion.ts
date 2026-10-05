@@ -62,3 +62,18 @@ export function pageVariants(level: MotionLevel) {
     }),
   };
 }
+
+/**
+ * Ana sayfa vitrini zamanlaması (kullanıcı isteği: sinematik, yavaş ve üst üste binmeyen geçişler;
+ * genel 150–450 ms kuralının bilinçli istisnası, bkz. MEMORY.md).
+ */
+export const showcase = {
+  /** Her oyunun ekranda kaldığı süre; görsel bu süre boyunca merkeze doğru yakınlaşır. */
+  dwellMs: 10_000,
+  /** Görseller arası çapraz geçiş. */
+  crossfadeS: 1.8,
+  /** Geçiş sürerken yeni gezinme komutları yok sayılır. */
+  navLockMs: 1_800,
+  /** Yakınlaşma: %100 → %112. */
+  zoomTo: 1.12,
+} as const;

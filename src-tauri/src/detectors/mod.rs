@@ -2,6 +2,7 @@
 //! olduğundan testler sahte klasörlerle çalışır ve kullanıcının gerçek oyunlarına dokunmaz.
 pub mod epic;
 pub mod steam;
+pub mod steam_playtime;
 pub mod vdf;
 
 use serde::{Deserialize, Serialize};
