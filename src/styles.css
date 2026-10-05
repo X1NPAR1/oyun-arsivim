@@ -1,0 +1,16 @@
+/* Faz 1 geçici stil. Tasarım sistemi (token, font, cam yüzeyler) Faz 2'de gelir. */
+:root {
+  color-scheme: dark;
+  background: #0b0d14;
+  color: #e8eaf2;
+}
+body {
+  margin: 0;
+  background: #0b0d14;
+}
+.app-root {
+  display: grid;
+  place-content: center;
+  min-height: 100vh;
+  text-align: center;
+}

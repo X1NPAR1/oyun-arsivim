@@ -1,0 +1,37 @@
+# Bağımlılıklar ve build çıktıları
+node_modules
+dist
+dist-ssr
+src-tauri/target
+src-tauri/gen/schemas
+coverage
+*.local
+
+# Günlükler
+logs
+*.log
+
+# Gizli bilgiler — ASLA depoya girmez
+.env
+.env.*
+!.env.example
+*.key
+*.key.pub
+*.password
+*.pfx
+*.p12
+keys/
+
+# Kişisel veri / yerel durum
+*.sqlite
+*.db
+user-data/
+.claude/settings.local.json
+
+# Editör
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.sw?
