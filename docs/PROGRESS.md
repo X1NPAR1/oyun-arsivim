@@ -93,6 +93,13 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - [x] Genel başlatma (URI / exe + argüman), argümanlı kısayol
 - [ ] Kullanıcı doğrulaması: yeni platformlardan gerçek oyun başlatma
 
+## Faz 8 — Oyun detay sayfası ✅ (v0.8.0)
+
+- Detay sayfası (`/kutuphane/:id`), layoutId ile kart → detay geçişi (kare kare doğrulandı).
+- `game_notes` tablosu (migration v6), motion varsayılanı "full" (migration v7).
+- Rust `art_analysis`: baskın renk → vurgu, logo koyuluğu → `*_meta.json`; 21 oyunda üretildi, CS2 logosu beyaz silüet (review/faz-08/ana-meta.png).
+- Geçiş kilidi 500 ms.
+
 ## Faz 9 — Görsel sistemi (SteamGridDB, yedek kapak) ⬜
 
 ## Faz 10 — Kütüphane sayfası ⬜

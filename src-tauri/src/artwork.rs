@@ -18,6 +18,10 @@ pub struct Artwork {
     pub icon: Option<String>,
     /// 16:9 tam ekran sahne görseli (Steam mağaza ekran görüntüsü, 1920×1080).
     pub backdrop: Option<String>,
+    /// Görselden türetilen vurgu rengi (dinamik tema).
+    pub accent: Option<String>,
+    /// Logo koyu mu (koyu sahnede beyaz silüet çizilir).
+    pub logo_dark: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -138,7 +142,40 @@ impl ArtworkStore {
             hero: Self::existing(self.file(game.platform, &key, Kind::Hero)),
             icon: Self::existing(self.file(game.platform, &key, Kind::Icon)),
             backdrop: Self::existing(self.file(game.platform, &key, Kind::Backdrop)),
+            ..self.meta(game.platform, &key)
         }
+    }
+
+    fn meta_path(&self, platform: Platform, key: &str) -> PathBuf {
+        let base = self.file(platform, key, Kind::Cover);
+        PathBuf::from(base.to_string_lossy().replace("_cover.jpg", "_meta.json"))
+    }
+
+    fn meta(&self, platform: Platform, key: &str) -> Artwork {
+        let m: crate::art_analysis::ArtMeta = std::fs::read(self.meta_path(platform, key))
+            .ok()
+            .and_then(|b| serde_json::from_slice(&b).ok())
+            .unwrap_or_default();
+        Artwork {
+            accent: m.accent,
+            logo_dark: m.logo_dark,
+            ..Artwork::default()
+        }
+    }
+
+    /// Görseller değiştiyse (veya meta hiç yoksa) vurgu rengi ve logo tonunu yeniden hesaplar.
+    fn refresh_meta(&self, game: &Game, force: bool) -> bool {
+        let key = Self::key(game);
+        let path = self.meta_path(game.platform, &key);
+        if path.is_file() && !force {
+            return false;
+        }
+        let pick = |k: Kind| Some(self.file(game.platform, &key, k)).filter(|p| p.is_file());
+        let color = pick(Kind::Cover)
+            .or_else(|| pick(Kind::Hero))
+            .or_else(|| pick(Kind::Icon));
+        let meta = crate::art_analysis::analyze(color.as_deref(), pick(Kind::Logo).as_deref());
+        serde_json::to_vec(&meta).is_ok_and(|b| std::fs::write(&path, b).is_ok())
     }
 
     /// Eksik görselleri hazırlar. Hata oyun başına loglanır; biri başarısız diye diğerleri durmaz.
@@ -188,6 +225,8 @@ impl ArtworkStore {
                 changed |= self.make_icon(game, &target);
             }
         }
+        // Yeni görsel geldiyse renk/ton yeniden hesaplanır; meta yoksa ilk kez üretilir.
+        changed |= self.refresh_meta(game, changed);
         changed
     }
 

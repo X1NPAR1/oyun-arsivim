@@ -1,4 +1,5 @@
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { useNavigate } from "react-router";
 import { open } from "@tauri-apps/plugin-dialog";
 import { AnimatePresence } from "motion/react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
@@ -34,6 +35,7 @@ export function LibraryPage() {
   const [platform, setPlatform] = useState<Platform | "all">("all");
   const deferredQuery = useDeferredValue(query);
   const gameMenu = useGameMenu();
+  const navigate = useNavigate();
 
   const counts = useMemo(
     () => ({
@@ -208,6 +210,7 @@ export function LibraryPage() {
                 onPlay={onPlay}
                 onRemove={onRemove}
                 onContextMenu={gameMenu.openFor}
+                onOpen={(game) => void navigate(`/kutuphane/${String(game.id)}`)}
               />
             ))}
           </AnimatePresence>

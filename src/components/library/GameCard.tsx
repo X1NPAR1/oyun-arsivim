@@ -12,11 +12,12 @@ interface GameCardProps {
   onPlay: (game: GameView) => void;
   onRemove?: (game: GameView) => void;
   onContextMenu?: (game: GameView, e: MouseEvent) => void;
+  onOpen?: (game: GameView) => void;
 }
 
 const MAX_TILT_DEG = 6;
 
-export function GameCard({ game, index, onPlay, onRemove, onContextMenu }: GameCardProps) {
+export function GameCard({ game, index, onPlay, onRemove, onContextMenu, onOpen }: GameCardProps) {
   const level = useMotionLevel();
   const artRef = useRef<HTMLDivElement>(null);
   const [coverFailed, setCoverFailed] = useState(false);
@@ -88,40 +89,56 @@ export function GameCard({ game, index, onPlay, onRemove, onContextMenu }: GameC
       <div
         ref={artRef}
         className="game-card__art"
+        role={onOpen ? "button" : undefined}
+        tabIndex={onOpen ? 0 : undefined}
+        aria-label={onOpen ? `${game.title} ayrıntıları` : undefined}
+        onClick={(e) => {
+          // Kart üzerindeki düğmeler (Oyna, Çıkar) detayı açmasın.
+          if (onOpen && !(e.target as HTMLElement).closest("button")) onOpen(game);
+        }}
+        onKeyDown={(e) => {
+          if (onOpen && (e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
+            e.preventDefault();
+            onOpen(game);
+          }
+        }}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
       >
-        {cover ? (
-          <img
-            className="game-card__cover"
-            src={cover}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-            onError={() => {
-              setCoverFailed(true);
-            }}
-          />
-        ) : (
-          <div className="game-card__fallback">
-            {banner && !logo ? (
-              <img className="game-card__banner" src={banner} alt="" draggable={false} />
-            ) : logo ? (
-              <img
-                className={`game-card__logo game-card__logo--${logo.kind}`}
-                src={logo.src}
-                alt=""
-                draggable={false}
-              />
-            ) : (
-              <span className="game-card__monogram" aria-hidden>
-                {game.title.slice(0, 1).toLocaleUpperCase("tr-TR")}
-              </span>
-            )}
-            <span className="game-card__fallback-title">{game.title}</span>
-          </div>
-        )}
+        {/* Paylaşılan öğe: detay sayfasında tam ekran sahneye büyür (eğim dış kapta kalır). */}
+        <motion.div layoutId={`art-${String(game.id)}`} className="game-card__layout">
+          {cover ? (
+            <img
+              className="game-card__cover"
+              src={cover}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+              onError={() => {
+                setCoverFailed(true);
+              }}
+            />
+          ) : (
+            <div className="game-card__fallback">
+              {banner && !logo ? (
+                <img className="game-card__banner" src={banner} alt="" draggable={false} />
+              ) : logo ? (
+                <img
+                  className={`game-card__logo game-card__logo--${logo.kind}`}
+                  src={logo.src}
+                  alt=""
+                  draggable={false}
+                />
+              ) : (
+                <span className="game-card__monogram" aria-hidden>
+                  {game.title.slice(0, 1).toLocaleUpperCase("tr-TR")}
+                </span>
+              )}
+              <span className="game-card__fallback-title">{game.title}</span>
+            </div>
+          )}
+        </motion.div>
         <span className="game-card__shine" aria-hidden />
         {removed && <span className="badge badge--removed">Silindi</span>}
         <div className="game-card__actions">

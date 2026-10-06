@@ -387,3 +387,39 @@ pub fn playtime_sessions(
             .map_err(library::LibraryError::from)?,
     )
 }
+
+// ───────────── Oyun notları ─────────────
+
+/// Notlar ayrı tabloda: oyun kaydı (ve testlerdeki tüm değişmezleri) değişmeden kalır.
+#[tauri::command]
+pub fn get_game_notes(state: State<'_, SharedState>, id: i64) -> CmdResult<String> {
+    use rusqlite::OptionalExtension;
+    let conn = state.db.lock().map_err(|_| CommandError::Lock)?;
+    let notes: Option<String> = conn
+        .query_row(
+            "SELECT notes FROM game_notes WHERE game_id = ?1",
+            [id],
+            |r| r.get(0),
+        )
+        .optional()
+        .map_err(library::LibraryError::from)?;
+    Ok(notes.unwrap_or_default())
+}
+
+#[tauri::command]
+pub fn set_game_notes(state: State<'_, SharedState>, id: i64, notes: String) -> CmdResult<()> {
+    let conn = state.db.lock().map_err(|_| CommandError::Lock)?;
+    // Çok uzun metinleri sınırla (yanlışlıkla yapıştırılan dev içerik veritabanını şişirmesin).
+    let notes: String = notes.chars().take(10_000).collect();
+    if notes.trim().is_empty() {
+        conn.execute("DELETE FROM game_notes WHERE game_id = ?1", [id])
+    } else {
+        conn.execute(
+            "INSERT INTO game_notes (game_id, notes) VALUES (?1, ?2)
+             ON CONFLICT(game_id) DO UPDATE SET notes = excluded.notes",
+            rusqlite::params![id, notes],
+        )
+    }
+    .map_err(library::LibraryError::from)?;
+    Ok(())
+}

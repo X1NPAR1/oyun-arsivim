@@ -51,6 +51,15 @@ const MIGRATIONS: &[&str] = &[
     );",
     // v5 — exe ile verilecek başlatma argümanları (ör. Riot istemcisi)
     "ALTER TABLE games ADD COLUMN launch_args TEXT;",
+    // v6 — oyun notları
+    "CREATE TABLE game_notes (
+        game_id INTEGER PRIMARY KEY REFERENCES games(id) ON DELETE CASCADE,
+        notes TEXT NOT NULL
+    );",
+    // v7 tek seferlik: eski varsayılan "system" → "full" (Windows animasyonları kapalıyken uygulama
+    // animasyonsuz kalıyordu; kullanıcı akıcı geçiş istedi). Bilerek seçilen diğer değerlere dokunulmaz.
+    "UPDATE settings SET value = json_set(value, '$.motion', 'full')
+     WHERE key = 'app' AND json_extract(value, '$.motion') = 'system';",
 ];
 
 #[derive(Debug, thiserror::Error)]
@@ -110,6 +119,32 @@ fn migrate(conn: &mut Connection) -> Result<(), DbError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn v7_migrates_only_system_motion_to_full() {
+        let conn = open_in_memory().unwrap();
+        let v7 = MIGRATIONS[6];
+        conn.execute(
+            r#"INSERT INTO settings VALUES ('app', '{"motion":"system","closeToTray":true}')"#,
+            [],
+        )
+        .unwrap();
+        conn.execute_batch(v7).unwrap();
+        let v: String = conn
+            .query_row("SELECT value FROM settings", [], |r| r.get(0))
+            .unwrap();
+        assert!(
+            v.contains(r#""motion":"full""#) && v.contains("closeToTray"),
+            "{v}"
+        );
+        conn.execute(r#"UPDATE settings SET value = '{"motion":"reduced"}'"#, [])
+            .unwrap();
+        conn.execute_batch(v7).unwrap();
+        let v: String = conn
+            .query_row("SELECT value FROM settings", [], |r| r.get(0))
+            .unwrap();
+        assert!(v.contains("reduced"), "bilerek seçilen değer korunur");
+    }
 
     #[test]
     fn migrations_apply_once_and_are_idempotent() {

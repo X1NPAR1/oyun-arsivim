@@ -1212,3 +1212,270 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ───────────── Kart → detay paylaşılan öğe ───────────── */
+.game-card__layout {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.game-card__art[role="button"] {
+  cursor: pointer;
+}
+
+/* ───────────── Oyun detay sayfası ───────────── */
+.detail {
+  position: relative;
+  min-height: 100%;
+  isolation: isolate;
+}
+.detail__art {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(100vh, 860px);
+  z-index: -2;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  background: var(--c-bg-1);
+}
+.detail__cover,
+.detail__hero {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.detail__cover {
+  filter: blur(18px) brightness(0.7);
+  transform: scale(1.1);
+}
+.detail__scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(100vh, 860px);
+  z-index: -1;
+  border-radius: var(--r-xl);
+  background:
+    linear-gradient(90deg, rgba(10, 11, 13, 0.9) 0%, rgba(10, 11, 13, 0.4) 50%, transparent 80%),
+    linear-gradient(0deg, var(--c-bg-0) 0%, rgba(10, 11, 13, 0.6) 30%, transparent 60%);
+}
+.detail__content {
+  position: relative;
+  padding: 20px clamp(24px, 3.5vw, 56px) 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.detail__back {
+  align-self: flex-start;
+}
+.detail__head {
+  min-height: calc(min(100vh, 860px) - 300px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 16px;
+}
+.detail__logo {
+  max-width: min(480px, 70%);
+  max-height: clamp(110px, 18vh, 200px);
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 8px 30px rgba(0, 0, 0, 0.55));
+}
+.detail__title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4vw, 56px);
+  line-height: 1.1;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.6);
+}
+.detail__title-icon {
+  width: clamp(54px, 5vw, 80px);
+  height: clamp(54px, 5vw, 80px);
+  object-fit: contain;
+}
+.detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  font-weight: 600;
+  color: rgba(237, 237, 238, 0.85);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+.badge--removed-inline {
+  color: #fff;
+  background: rgba(229, 83, 75, 0.35);
+}
+.detail__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.detail__more {
+  width: 52px;
+  height: 52px;
+}
+
+/* Oyna: basınca soldan sağa dolan ilerleme (vurgu rengiyle) */
+.play-btn {
+  position: relative;
+  overflow: hidden;
+  min-width: 170px;
+  justify-content: center;
+}
+.play-btn__fill {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--c-accent) 55%, white);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.play-btn.is-launching .play-btn__fill {
+  transform: scaleX(1);
+  transition: transform 1400ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+.play-btn.is-done .play-btn__fill {
+  transform: scaleX(1);
+}
+.play-btn__label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+:root[data-motion="off"] .play-btn.is-launching .play-btn__fill {
+  transition: none;
+}
+
+.perf-quick {
+  height: 52px;
+  padding: 0 10px 0 18px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  background: rgba(15, 16, 18, 0.6);
+}
+.perf-quick__more {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--c-text-2);
+}
+.perf-quick__more:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--c-text-1);
+}
+
+.detail__panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.detail-card {
+  border-radius: var(--r-xl);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.detail-card--wide {
+  grid-column: 1 / -1;
+}
+.detail-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.detail-card__hint {
+  font-size: 13px;
+  color: var(--c-text-2);
+}
+.detail-card__empty {
+  margin: 0;
+  color: var(--c-text-2);
+}
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.session-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 13px;
+}
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  font-size: 13px;
+}
+.facts dt {
+  color: var(--c-text-3);
+  font-weight: 700;
+}
+.facts dd {
+  margin: 0;
+  min-width: 0;
+}
+.facts__path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.notes {
+  flex: 1;
+  min-height: 140px;
+  resize: vertical;
+  border: 1px solid var(--c-glass-edge);
+  border-radius: var(--r-md);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--c-text-1);
+  font: inherit;
+  padding: 12px 14px;
+  user-select: text;
+}
+.notes:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--c-accent) 60%, transparent);
+}
+@media (max-width: 1150px) {
+  .detail__panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Koyu logolar (ör. lacivert CS2 logosu) koyu sahnede beyaz silüet olarak okunur. */
+.is-dark-logo {
+  filter: brightness(0) invert(1) drop-shadow(0 6px 24px rgba(0, 0, 0, 0.6)) !important;
+}
+.rail__logo--logo.is-dark-logo {
+  filter: brightness(0) invert(0.92) !important;
+}

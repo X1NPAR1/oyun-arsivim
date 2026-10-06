@@ -2,9 +2,8 @@
 
 ## Sıradaki adım
 
-Faz 8 — Oyun detay sayfası: tam ekran sahne, paylaşılan öğe geçişi (kart → detay), dinamik vurgu rengi (kapaktan),
-oyun istatistikleri/oturumlar, performans profili, notlar, görsel değiştirme. Ardından: SteamGridDB + yedek kapak,
-save yedekleme, öneriler + komut paleti, i18n, otomatik güncelleme, optimizasyon (RAM).
+Faz 9 — Görsel sistemi: SteamGridDB (isteğe bağlı anahtar, DPAPI) + exe ikonundan degrade yedek kapak, görsel değiştirme.
+Ardından: save yedekleme, öneriler + komut paleti, i18n, otomatik güncelleme, optimizasyon (RAM).
 **Kullanıcı doğrulaması bekleyen:** UAC ayarları; yeni platformlardan (Riot/Xbox/GOG/Ubisoft/Battle.net) gerçek oyun başlatma.
 
 ## Kararlar (gerekçeli)
@@ -130,6 +129,8 @@ Proje skill'leri (skill-creator formatı): `full-check`, `phase-close`, `add-det
 | Clippy 1.99 `chunks_exact_to_as_chunks`, `cloned_ref_to_slice_refs`                                         | `as_chunks::<4>()`, `std::slice::from_ref`                                                                                                                              |
 | PS 5.1 BOM'suz .ps1'i ANSI okuyor (Türkçe bozuk)                                                            | Betikler UTF-8 BOM ile kaydedilir                                                                                                                                       |
 | Bash aracında çok büyük çoklu heredoc ayrıştırma hatası                                                     | Dosyalar Write aracıyla tek tek yazılıyor                                                                                                                               |
+| Canvas ile renk/logo analizi `asset:` görsellerinde çalışmıyor (farklı köken, getImageData engelli)         | Analiz Rust `art_analysis`a taşındı, `*_meta.json` önbelleği; arayüz `art.accent`/`art.logoDark` okur                                                                   |
+| Windows animasyonlar kapalıyken uygulama hareketi azaltıyordu                                               | Varsayılan motion "full" + migration v7                                                                                                                                 |
 
 ## Bilinen sorunlar
 

@@ -35,10 +35,11 @@ function heroOf(g: GameView | undefined): string | null {
 
 function GameLogo({ game, className }: { game: GameView; className: string }) {
   const logo = logoOf(game);
+  const dark = game.art.logoDark;
   if (logo?.kind === "logo") {
     return (
       <img
-        className={`${className} ${className}--logo`}
+        className={`${className} ${className}--logo${dark ? " is-dark-logo" : ""}`}
         src={logo.src}
         alt={game.title}
         draggable={false}

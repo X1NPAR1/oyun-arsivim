@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import { useState, type ReactNode } from "react";
 import { useLocation, useOutlet } from "react-router";
 import { pageVariants, type NavDirection } from "../../design/motion";
@@ -30,20 +30,23 @@ export function AnimatedOutlet() {
   const variants = pageVariants(level);
 
   return (
+    // LayoutGroup: kart ↔ detay paylaşılan öğe geçişi sayfalar arasında çalışsın.
     <div className="page-stack">
-      <AnimatePresence initial={false} custom={direction}>
-        <motion.main
-          key={location.pathname}
-          className="page"
-          custom={direction}
-          variants={variants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          <Frozen>{outlet}</Frozen>
-        </motion.main>
-      </AnimatePresence>
+      <LayoutGroup>
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.main
+            key={location.pathname}
+            className="page"
+            custom={direction}
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Frozen>{outlet}</Frozen>
+          </motion.main>
+        </AnimatePresence>
+      </LayoutGroup>
     </div>
   );
 }

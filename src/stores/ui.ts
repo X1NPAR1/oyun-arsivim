@@ -21,7 +21,7 @@ interface UiState {
 
 export const useUiStore = create<UiState>((set) => ({
   // Kalıcı değer SQLite ayarlarından gelir (useSyncMotionFromSettings).
-  motionPreference: "system",
+  motionPreference: "full",
   systemReducedMotion: false,
   backdrop: "none",
   setMotionPreference: (motionPreference) => {

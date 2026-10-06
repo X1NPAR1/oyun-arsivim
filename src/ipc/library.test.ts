@@ -22,7 +22,16 @@ function game(art: Partial<GameView["art"]>): GameView {
     installed: true,
     addedAt: 0,
     removedAt: null,
-    art: { cover: null, logo: null, hero: null, icon: null, backdrop: null, ...art },
+    art: {
+      cover: null,
+      logo: null,
+      hero: null,
+      icon: null,
+      backdrop: null,
+      accent: null,
+      logoDark: false,
+      ...art,
+    },
     playtime: EMPTY_PLAYTIME,
   };
 }

@@ -21,6 +21,7 @@ export function SettingsPage() {
   const preference = useUiStore((s) => s.motionPreference);
   const setPreference = useUiStore((s) => s.setMotionPreference);
   const level = useMotionLevel();
+  const systemReduced = useUiStore((s) => s.systemReducedMotion);
 
   return (
     <div className="page-content">
@@ -77,7 +78,10 @@ export function SettingsPage() {
           <div>
             <p className="setting-row__title">Animasyon seviyesi</p>
             <p className="setting-row__hint">
-              "Sistem", Windows'taki "Animasyonları azalt" ayarını izler.
+              "Sistem" Windows'un animasyon ayarını izler.{" "}
+              {systemReduced
+                ? 'Bu bilgisayarda Windows animasyonları kapalı; "Sistem" seçilirse uygulama da sadeleşir.'
+                : "Windows animasyonları açık."}
             </p>
           </div>
           <div className="segmented" role="radiogroup" aria-label="Animasyon seviyesi">
