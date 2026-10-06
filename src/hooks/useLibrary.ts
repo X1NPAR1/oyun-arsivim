@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect } from "react";
-import { LIBRARY_CHANGED_EVENT, libraryApi } from "../ipc/library";
+import { LIBRARY_CHANGED_EVENT, libraryApi, type GameView } from "../ipc/library";
+import { LaunchConflictError, useRunningStore } from "../stores/running";
 import { toast } from "../stores/toast";
 
 export const LIBRARY_KEY = ["library"] as const;
@@ -81,10 +82,26 @@ export function useRemoveManualGame() {
   });
 }
 
+/**
+ * Oyun başlatır. Aynı anda tek oyun: başka bir oyun çalışıyorsa başlatmak yerine kullanıcıya
+ * "kapatıp bunu açayım mı?" diye sorulur (GameConflictDialog).
+ */
 export function useLaunchGame() {
+  const client = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => libraryApi.launch(id),
+    mutationFn: (id: number) => {
+      const { games, setConflict } = useRunningStore.getState();
+      const current = games.find((g) => g.id !== id);
+      if (current) {
+        const all = client.getQueryData<GameView[]>(LIBRARY_KEY) ?? [];
+        const title = all.find((g) => g.id === id)?.title ?? "";
+        setConflict({ current, next: { id, title } });
+        return Promise.reject(new LaunchConflictError());
+      }
+      return libraryApi.launch(id);
+    },
     onError: (e) => {
+      if (e instanceof LaunchConflictError) return;
       toast.error("Oyun başlatılamadı", errorText(e));
     },
   });

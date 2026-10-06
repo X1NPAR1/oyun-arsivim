@@ -32,6 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Release notlarını CHANGELOG'dan çıkar
+        id: notes
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".TrimStart('v')
@@ -41,7 +42,9 @@ jobs:
           $rest = $lines[$start..($lines.Length - 1)]
           $end = ($rest | Select-String -Pattern '^## \[' | Select-Object -First 1).LineNumber
           $body = if ($end) { $rest[0..($end - 2)] } else { $rest }
-          $body -join "`n" | Out-File release-notes.md -Encoding utf8
+          # tauri-action dosya yolu kabul etmiyor (releaseBodyPath yok): metin çıktı olarak verilir.
+          $delim = "NOTES_" + [guid]::NewGuid().ToString("N")
+          @("body<<$delim") + $body + @($delim) | Out-File $env:GITHUB_OUTPUT -Append -Encoding utf8
           # 1.0.0 öncesi sürümler ön sürüm olarak yayınlanır.
           "PRERELEASE=$([int]($version.Split('.')[0]) -lt 1)".ToLower() | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
@@ -54,6 +57,6 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "Oyun Arşivim ${{ github.ref_name }}"
-          releaseBodyPath: release-notes.md
+          releaseBody: ${{ steps.notes.outputs.body }}
           releaseDraft: false
           prerelease: ${{ env.PRERELEASE }}

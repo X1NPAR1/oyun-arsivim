@@ -10,6 +10,7 @@ mod library;
 mod logging;
 mod perf;
 mod playtime;
+mod running;
 mod settings;
 mod startup;
 mod tracker;
@@ -248,6 +249,8 @@ pub fn run() {
             commands::remove_manual_game,
             commands::rename_game,
             commands::launch_game,
+            commands::running_games,
+            commands::stop_game,
             commands::get_settings,
             commands::update_settings,
             commands::uninstall_game,
@@ -264,6 +267,8 @@ pub fn run() {
             perf::commands::perf_restore_defaults,
             perf::commands::perf_clean_ram,
             perf::commands::perf_purge_standby,
+            perf::commands::perf_temp_usage,
+            perf::commands::perf_clean_temp,
             perf::commands::power_overview,
             perf::commands::power_set,
             perf::commands::perf_profile_get,

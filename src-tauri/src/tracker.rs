@@ -13,7 +13,7 @@ use std::time::Duration;
 use rusqlite::Connection;
 use tauri::{AppHandle, Emitter};
 
-use crate::commands::{now, SharedState, EVENT_LIBRARY_CHANGED};
+use crate::commands::{now, SharedState, EVENT_LIBRARY_CHANGED, EVENT_RUNNING_CHANGED};
 use crate::detectors::{steam, steam_playtime, Platform};
 use crate::library::{self, Game};
 use crate::perf::boost::{self, BoostManager, BoostOptions, RunningGames};
@@ -297,7 +297,11 @@ pub fn spawn(app: AppHandle, state: SharedState, perf_state: std::path::PathBuf)
                 let t = now();
                 if matcher_due(matcher_at, t) {
                     if let Ok(conn) = state.db.lock() {
-                        matcher = GameMatcher::new(&library::list(&conn).unwrap_or_default());
+                        let games = library::list(&conn).unwrap_or_default();
+                        matcher = GameMatcher::new(&games);
+                        if let Ok(mut r) = state.running.lock() {
+                            r.set_titles(games.iter().map(|g| (g.id, g.title.clone())).collect());
+                        }
                         prefs = settings::load(&conn);
                         opts = BoostOptions { close_list: prefs.close_list.clone(), restart_closed_apps: prefs.restart_closed_apps };
                     }
@@ -314,6 +318,10 @@ pub fn spawn(app: AppHandle, state: SharedState, perf_state: std::path::PathBuf)
                 }
                 let running_map = running_games(&mut sys, &matcher);
                 let running: HashSet<i64> = running_map.keys().copied().collect();
+                let changed = state.running.lock().ok().and_then(|mut r| r.update(t, &running_map).then(|| r.snapshot(t)));
+                if let Some(snapshot) = changed {
+                    let _ = app.emit(EVENT_RUNNING_CHANGED, snapshot);
+                }
                 let idle = input.is_idle(t);
                 let outcome = match state.db.lock() {
                     Ok(conn) => {

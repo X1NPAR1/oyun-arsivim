@@ -2,7 +2,7 @@
 
 ## Sıradaki adım
 
-Faz 9 — Görsel sistemi: SteamGridDB (isteğe bağlı anahtar, DPAPI) + exe ikonundan degrade yedek kapak, görsel değiştirme.
+Faz 10 — Görsel sistemi: SteamGridDB (isteğe bağlı anahtar, DPAPI) + exe ikonundan degrade yedek kapak, görsel değiştirme.
 Ardından: save yedekleme, öneriler + komut paleti, i18n, otomatik güncelleme, optimizasyon (RAM).
 **Kullanıcı doğrulaması bekleyen:** UAC ayarları; yeni platformlardan (Riot/Xbox/GOG/Ubisoft/Battle.net) gerçek oyun başlatma.
 
@@ -131,6 +131,8 @@ Proje skill'leri (skill-creator formatı): `full-check`, `phase-close`, `add-det
 | Bash aracında çok büyük çoklu heredoc ayrıştırma hatası                                                     | Dosyalar Write aracıyla tek tek yazılıyor                                                                                                                               |
 | Canvas ile renk/logo analizi `asset:` görsellerinde çalışmıyor (farklı köken, getImageData engelli)         | Analiz Rust `art_analysis`a taşındı, `*_meta.json` önbelleği; arayüz `art.accent`/`art.logoDark` okur                                                                   |
 | Windows animasyonlar kapalıyken uygulama hareketi azaltıyordu                                               | Varsayılan motion "full" + migration v7                                                                                                                                 |
+| Xbox Minecraft Launcher "bulunamadı"                                                                        | `xml_attr` `<Application` ararken `<Applications>` eşleşiyordu → ad sınırı kontrolü                                                                                     |
+| Toplu testte geç açılan oyunlar (RDR2, BF1) ve başlatıcılar arkada kaldı                                    | Betik her oyundan sonra 25 sn sessizlik bekler, testin açtığı başlatıcıları kapatır; PS 5.1 ConvertFrom-Json diziyi tek nesne verir → ForEach ile açılır                |
 
 ## Bilinen sorunlar
 

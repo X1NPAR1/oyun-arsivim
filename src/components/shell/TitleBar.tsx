@@ -4,6 +4,7 @@ import logo1x from "../../assets/brand/logo-20.png";
 import logo2x from "../../assets/brand/logo-20@2x.png";
 import logo3x from "../../assets/brand/logo-20@3x.png";
 import { Icon } from "../Icon";
+import { NowPlaying } from "./NowPlaying";
 
 /** Windows başlık çubuğunun yerini alan sürüklenebilir çubuk ve uygulama stilinde pencere düğmeleri. */
 export function TitleBar() {
@@ -41,6 +42,7 @@ export function TitleBar() {
           Oyun Arşivim
         </span>
       </div>
+      <NowPlaying />
       <div className="titlebar__controls">
         <button
           type="button"

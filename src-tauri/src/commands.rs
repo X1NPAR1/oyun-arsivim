@@ -13,14 +13,19 @@ use crate::detectors::{self, Platform};
 use crate::game_actions::{self, PlatformAction};
 use crate::library::{self, Game, SyncReport};
 use crate::playtime::{self, HourRow, PlaytimeSummary, SessionRow};
+use crate::running::{self, Running, RunningGame};
 use crate::settings::{self, Settings};
 
 pub const EVENT_LIBRARY_CHANGED: &str = "library://changed";
+/// Çalışan oyun listesi değişti (yük: `Vec<RunningGame>`).
+pub const EVENT_RUNNING_CHANGED: &str = "games://running";
 
 pub struct AppState {
     pub db: Mutex<Connection>,
     pub artwork: ArtworkStore,
     pub scanning: AtomicBool,
+    /// Çalışan / başlatılmakta olan oyunlar (tek oyun kuralı).
+    pub running: Mutex<Running>,
 }
 
 pub type SharedState = Arc<AppState>;
@@ -45,6 +50,8 @@ pub enum CommandError {
     Launch(String),
     #[error("{0}")]
     Action(String),
+    #[error("Şu an {0} oynanıyor. Yeni bir oyun açmadan önce onu kapatın.")]
+    AlreadyPlaying(String),
 }
 
 impl Serialize for CommandError {
@@ -225,11 +232,50 @@ pub fn rename_game(
 }
 
 #[tauri::command]
-pub fn launch_game(state: State<'_, SharedState>, id: i64) -> CmdResult<()> {
+pub fn launch_game(app: AppHandle, state: State<'_, SharedState>, id: i64) -> CmdResult<()> {
     let game = {
         let conn = state.db.lock().map_err(|_| CommandError::Lock)?;
         library::get(&conn, id)?
     };
+    // Aynı anda tek oyun: başka bir oyun çalışıyorsa (veya açılıyorsa) başlatma reddedilir.
+    {
+        let running = state.running.lock().map_err(|_| CommandError::Lock)?;
+        if let Some(other) = running.other_than(id, now()) {
+            return Err(CommandError::AlreadyPlaying(other.title));
+        }
+    }
+    start_game(&game)?;
+    let snapshot = {
+        let mut running = state.running.lock().map_err(|_| CommandError::Lock)?;
+        running.mark_launched(game.id, &game.title, now());
+        running.snapshot(now())
+    };
+    let _ = app.emit(EVENT_RUNNING_CHANGED, snapshot);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn running_games(state: State<'_, SharedState>) -> CmdResult<Vec<RunningGame>> {
+    let running = state.running.lock().map_err(|_| CommandError::Lock)?;
+    Ok(running.snapshot(now()))
+}
+
+/// Çalışan oyunu kapatır (yalnız o oyunun klasörüyle eşleşen süreçler).
+#[tauri::command]
+pub fn stop_game(app: AppHandle, state: State<'_, SharedState>, id: i64) -> CmdResult<usize> {
+    let (pids, snapshot) = {
+        let mut running = state.running.lock().map_err(|_| CommandError::Lock)?;
+        let pids = running.pids_of(id);
+        running.forget(id);
+        (pids, running.snapshot(now()))
+    };
+    let closed = running::terminate(&pids);
+    tracing::info!(id, closed, "oyun kullanıcı isteğiyle kapatıldı");
+    let _ = app.emit(EVENT_RUNNING_CHANGED, snapshot);
+    Ok(closed)
+}
+
+fn start_game(game: &Game) -> CmdResult<()> {
     if !game.installed {
         return Err(CommandError::Launch(
             "oyun bu bilgisayarda kurulu değil".into(),
@@ -241,12 +287,12 @@ pub fn launch_game(state: State<'_, SharedState>, id: i64) -> CmdResult<()> {
             .map_err(|e| CommandError::Launch(e.to_string()))?;
         return Ok(());
     }
-    let exe = game.executable.ok_or_else(|| {
+    let exe = game.executable.as_deref().ok_or_else(|| {
         CommandError::Launch(
             "bu oyunun başlatma bilgisi yok; platformun kendi uygulamasından başlat".into(),
         )
     })?;
-    let mut cmd = std::process::Command::new(&exe);
+    let mut cmd = std::process::Command::new(exe);
     if let Some(args) = game.launch_args.as_deref() {
         cmd.args(split_args(args));
     }

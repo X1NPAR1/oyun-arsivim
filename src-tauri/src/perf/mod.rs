@@ -5,4 +5,5 @@ pub mod memory;
 pub mod monitor;
 pub mod power;
 pub mod processes;
+pub mod temp;
 pub mod tweaks;

@@ -11,15 +11,31 @@ use super::{DetectedGame, DetectorError, GameDetector, Platform};
 
 /// XML'de `<etiket ... ad="değer"` biçimindeki ilk özniteliği okur (tam XML ayrıştırıcı gerekmez).
 pub fn xml_attr(xml: &str, tag: &str, attr: &str) -> Option<String> {
-    let start = xml.find(&format!("<{tag}"))?;
-    let rest = &xml[start..];
-    let end = rest.find('>').unwrap_or(rest.len());
-    let el = &rest[..end];
+    let open = format!("<{tag}");
     let key = format!("{attr}=\"");
-    let a = el.find(&key)? + key.len();
-    let b = el[a..].find('"')? + a;
-    let v = el[a..b].trim();
-    (!v.is_empty()).then(|| v.to_owned())
+    let mut from = 0;
+    while let Some(i) = xml[from..].find(&open) {
+        let start = from + i;
+        from = start + open.len();
+        // `<Application` aranırken `<Applications>` eşleşmesin: ad tam bitmeli.
+        if !xml[from..].starts_with(|c: char| c.is_whitespace() || c == '>' || c == '/') {
+            continue;
+        }
+        let rest = &xml[start..];
+        let el = &rest[..rest.find('>').unwrap_or(rest.len())];
+        // `Id=` aranırken `AppId=` eşleşmesin: öznitelikten önce boşluk olmalı.
+        let Some(a) = el
+            .match_indices(&key)
+            .find(|(p, _)| el[..*p].ends_with(char::is_whitespace))
+            .map(|(p, _)| p + key.len())
+        else {
+            continue;
+        };
+        let b = el[a..].find('"')? + a;
+        let v = el[a..b].trim();
+        return (!v.is_empty()).then(|| v.to_owned());
+    }
+    None
 }
 
 /// Paket klasöründen oyun bilgisi üretir; oyun değilse `None`.
@@ -107,13 +123,24 @@ mod tests {
             r#"<Game configVersion="1"><Identity Name="Microsoft.MinecraftUWP"/><ShellVisuals DefaultDisplayName="Minecraft for Windows" PublisherDisplayName="Microsoft Studios"/></Game>"#,
         )
         .unwrap();
-        std::fs::write(t.path().join("AppxManifest.xml"), r#"<Package><Applications><Application Id="Game" Executable="Minecraft.Windows.exe"></Application></Applications></Package>"#).unwrap();
+        std::fs::write(t.path().join("AppxManifest.xml"), r#"<Package><Applications><Application AppId="x" Id="Game" Executable="Minecraft.Windows.exe"></Application></Applications></Package>"#).unwrap();
         let g = game_from_package(t.path(), "Microsoft.MinecraftUWP_8wekyb3d8bbwe", "x").unwrap();
         assert_eq!(g.title, "Minecraft for Windows");
         assert_eq!(
             g.launch_uri,
             r"shell:AppsFolder\Microsoft.MinecraftUWP_8wekyb3d8bbwe!Game"
         );
+    }
+
+    #[test]
+    fn application_id_skips_applications_wrapper() {
+        let m = r#"<Package><Applications>
+    <Application Id="Minecraft" Executable="x.exe"/></Applications></Package>"#;
+        assert_eq!(
+            xml_attr(m, "Application", "Id").as_deref(),
+            Some("Minecraft")
+        );
+        assert!(xml_attr("<Applications Id=\"no\"/>", "Application", "Id").is_none());
     }
 
     #[test]
