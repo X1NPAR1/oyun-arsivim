@@ -1,3 +1,4 @@
+mod art_analysis;
 mod artwork;
 mod commands;
 mod db;
@@ -255,6 +256,8 @@ pub fn run() {
             commands::open_game_folder,
             commands::playtime_hourly,
             commands::playtime_sessions,
+            commands::get_game_notes,
+            commands::set_game_notes,
             perf::commands::perf_snapshot,
             perf::commands::perf_tweaks,
             perf::commands::perf_set_tweak,

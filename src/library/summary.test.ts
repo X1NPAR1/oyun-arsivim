@@ -23,7 +23,15 @@ function g(
     installed,
     addedAt: 0,
     removedAt: null,
-    art: { cover: null, logo: null, hero: null, icon: null, backdrop: null },
+    art: {
+      cover: null,
+      logo: null,
+      hero: null,
+      icon: null,
+      backdrop: null,
+      accent: null,
+      logoDark: false,
+    },
     playtime: { ...EMPTY_PLAYTIME, weekSeconds: week, totalSeconds: total },
   };
 }

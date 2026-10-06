@@ -27,7 +27,8 @@ impl Default for Settings {
         Self {
             launch_at_startup: false,
             close_to_tray: true,
-            motion: "system".to_owned(),
+            // "Tam": Windows animasyonları kapalı olan sistemlerde bile uygulama akıcı kalsın (kullanıcı tercihi).
+            motion: "full".to_owned(),
             auto_ram_clean: false,
             auto_ram_threshold: 85,
             close_list: Vec::new(),
@@ -52,7 +53,7 @@ pub fn load(conn: &Connection) -> Settings {
         .and_then(|r| serde_json::from_str(&r).ok())
         .unwrap_or_default();
     if !matches!(s.motion.as_str(), "system" | "full" | "reduced" | "off") {
-        s.motion = "system".to_owned();
+        s.motion = "full".to_owned();
     }
     s.auto_ram_threshold = s.auto_ram_threshold.clamp(50, 98);
     s
@@ -113,7 +114,7 @@ mod tests {
         )
         .unwrap();
         let s = load(&conn);
-        assert_eq!(s.motion, "system");
+        assert_eq!(s.motion, "full");
         assert!(!s.close_to_tray);
     }
 

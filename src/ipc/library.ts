@@ -19,6 +19,10 @@ export interface Artwork {
   hero: string | null;
   icon: string | null;
   backdrop: string | null;
+  /** Görselden hesaplanan vurgu rengi (Rust `art_analysis`). */
+  accent: string | null;
+  /** Logo koyu mu (koyu sahnede beyaz silüet çizilir). */
+  logoDark: boolean;
 }
 
 /** Rust `playtime::PlaytimeSummary`. */

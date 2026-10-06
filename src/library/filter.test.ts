@@ -17,7 +17,15 @@ function g(id: number, title: string, platform: GameView["platform"], installed 
     installed,
     addedAt: 0,
     removedAt: installed ? null : 1,
-    art: { cover: null, logo: null, hero: null, icon: null, backdrop: null },
+    art: {
+      cover: null,
+      logo: null,
+      hero: null,
+      icon: null,
+      backdrop: null,
+      accent: null,
+      logoDark: false,
+    },
     playtime: EMPTY_PLAYTIME,
   };
 }

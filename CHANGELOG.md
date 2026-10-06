@@ -5,6 +5,23 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.8.0] - 2026-10-06
+
+### Eklendi
+
+- Oyun detay sayfası: tam ekran sahne görseli, kütüphane kartından detaya kesintisiz paylaşılan öğe geçişi, Oyna düğmesi, son 30 günün grafiği, oturum listesi, oyun bilgileri, oyuna özel performans profili ve kişisel notlar. Esc ile geri dönülür.
+- Dinamik vurgu rengi: detay sayfası oyunun görselinden çıkarılan rengi kullanır.
+- Koyu logolar (ör. Counter-Strike 2) koyu sahnede otomatik olarak beyaz silüet şeklinde çizilir.
+
+### Değişti
+
+- Ana sayfada oyunlar arası geçiş kilidi 2 saniyeden 0,5 saniyeye indirildi.
+- Animasyonlar varsayılan olarak tam açık; Windows'ta animasyonlar kapalı olsa bile uygulama hareketli kalır (Ayarlar'dan değiştirilebilir).
+
+### Düzeltildi
+
+- Görsel renk ve logo analizi artık arka uçta yapılıyor; `asset:` görsellerinde tuval okuma engeli nedeniyle çalışmayan renk/logo tespiti düzeldi.
+
 ## [0.7.0] - 2026-10-06
 
 ### Eklendi

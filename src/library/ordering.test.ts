@@ -11,7 +11,15 @@ const base = {
   sizeBytes: null,
   addedAt: 0,
   removedAt: null,
-  art: { cover: null, logo: null, hero: null, icon: null, backdrop: null },
+  art: {
+    cover: null,
+    logo: null,
+    hero: null,
+    icon: null,
+    backdrop: null,
+    accent: null,
+    logoDark: false,
+  },
   playtime: EMPTY_PLAYTIME,
 };
 const g = (id: number, title: string, lastPlayed: number | null, installed = true): GameView => ({
