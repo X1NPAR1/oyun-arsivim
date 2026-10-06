@@ -65,6 +65,17 @@ export interface AppSuggestion {
   running: boolean;
 }
 
+export interface TempUsage {
+  bytes: number;
+  files: number;
+}
+
+export interface TempCleanReport {
+  freedBytes: number;
+  deletedFiles: number;
+  skippedFiles: number;
+}
+
 export interface RestoreReport {
   restored: string[];
   failed: string[];
@@ -77,6 +88,8 @@ export const perfApi = {
   restoreDefaults: () => invoke<RestoreReport>("perf_restore_defaults"),
   cleanRam: () => invoke<CleanReport>("perf_clean_ram"),
   purgeStandby: () => invoke<null>("perf_purge_standby"),
+  tempUsage: () => invoke<TempUsage>("perf_temp_usage"),
+  cleanTemp: () => invoke<TempCleanReport>("perf_clean_temp"),
   power: () => invoke<PowerOverview>("power_overview"),
   setPower: (guid: string) => invoke<PowerOverview>("power_set", { guid }),
   profile: (gameId: number) => invoke<PerfProfile>("perf_profile_get", { gameId }),

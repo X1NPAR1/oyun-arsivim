@@ -63,6 +63,18 @@ export interface SyncReport {
 }
 
 export const LIBRARY_CHANGED_EVENT = "library://changed";
+/** Çalışan oyun listesi değişti (yük: `RunningGame[]`). */
+export const RUNNING_CHANGED_EVENT = "games://running";
+
+/** Rust `running::RunningGame`. */
+export interface RunningGame {
+  id: number;
+  title: string;
+  /** Oturum başlangıcı (unix sn). */
+  since: number;
+  /** Başlatıcı açıyor; süreç henüz görünmedi. */
+  starting: boolean;
+}
 
 export const PLATFORM_LABELS: Record<Platform, string> = {
   steam: "Steam",
@@ -85,6 +97,8 @@ export const libraryApi = {
   removeManual: (id: number) => invoke<null>("remove_manual_game", { id }),
   rename: (id: number, title: string) => invoke<null>("rename_game", { id, title }),
   launch: (id: number) => invoke<null>("launch_game", { id }),
+  running: () => invoke<RunningGame[]>("running_games"),
+  stop: (id: number) => invoke<number>("stop_game", { id }),
 };
 
 /** Önbellekteki görseli webview'de gösterilebilir `asset:` adresine çevirir. */

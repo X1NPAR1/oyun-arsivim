@@ -10,6 +10,7 @@ use super::memory::{self, CleanReport};
 use super::monitor::{PerfMonitor, PerfSnapshot};
 use super::power::{self, PowerOverview};
 use super::processes;
+use super::temp;
 use super::tweaks::{self, TweakState};
 use crate::commands::SharedState;
 
@@ -137,6 +138,22 @@ pub async fn perf_clean_ram() -> Res<CleanReport> {
 }
 
 /// Bekleme listesi temizliği (yönetici, UAC onayıyla).
+/// Silinebilecek geçici dosyaların boyutu.
+#[tauri::command]
+pub async fn perf_temp_usage() -> Res<temp::TempUsage> {
+    tauri::async_runtime::spawn_blocking(temp::usage)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// %TEMP% ve WindowsTemp temizliği (kilitli/yeni dosyalar atlanır).
+#[tauri::command]
+pub async fn perf_clean_temp() -> Res<temp::TempCleanReport> {
+    tauri::async_runtime::spawn_blocking(temp::clean)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 pub async fn perf_purge_standby() -> Res<()> {
     tauri::async_runtime::spawn_blocking(|| {

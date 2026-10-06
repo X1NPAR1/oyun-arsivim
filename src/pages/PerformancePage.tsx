@@ -92,6 +92,60 @@ function LiveMonitor() {
   );
 }
 
+// ───────────── Geçici dosyalar ─────────────
+
+function TempCard() {
+  const qc = useQueryClient();
+  const usage = useQuery({ queryKey: ["perf", "temp"], queryFn: perfApi.tempUsage });
+  const clean = useMutation({
+    mutationFn: perfApi.cleanTemp,
+    onSuccess: (r) => {
+      toast.success(
+        "Geçici dosyalar temizlendi",
+        `${r.deletedFiles.toLocaleString("tr-TR")} dosya, ${formatMB(r.freedBytes)} boşaltıldı` +
+          (r.skippedFiles > 0
+            ? ` · kullanımdaki ${r.skippedFiles.toLocaleString("tr-TR")} dosya atlandı`
+            : ""),
+      );
+      void qc.invalidateQueries({ queryKey: ["perf", "temp"] });
+    },
+    onError: (e) => {
+      toast.error("Temizlenemedi", errorText(e));
+    },
+  });
+  const size = usage.data
+    ? `${formatMB(usage.data.bytes)} · ${usage.data.files.toLocaleString("tr-TR")} dosya`
+    : usage.isLoading
+      ? "Hesaplanıyor…"
+      : "—";
+  return (
+    <section className="perf-card glass">
+      <h2 className="text-h3">Geçici dosyalar</h2>
+      <p className="temp-size" aria-live="polite">
+        <span className="temp-size__label">Temizlenebilir</span>
+        <span className="temp-size__value">{size}</span>
+      </p>
+      <div className="perf-actions">
+        <button
+          type="button"
+          className="btn btn--primary"
+          disabled={clean.isPending}
+          onClick={() => {
+            clean.mutate();
+          }}
+        >
+          <Icon name="trash" size={18} />
+          {clean.isPending ? "Temizleniyor…" : "Geçici dosyaları temizle"}
+        </button>
+      </div>
+      <p className="perf-card__hint">
+        Kullanıcı geçici klasörü (%TEMP%) ve WindowsTemp temizlenir. Son bir saatte değişen ve
+        kullanımdaki dosyalara dokunulmaz.
+      </p>
+    </section>
+  );
+}
+
 // ───────────── RAM ─────────────
 
 function RamCard() {
@@ -572,6 +626,7 @@ export function PerformancePage() {
         <ProfileCard initialGame={initialGame} />
         <CloseListCard />
       </div>
+      <TempCard />
       <TweaksCard />
     </div>
   );

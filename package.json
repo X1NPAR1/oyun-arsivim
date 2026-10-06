@@ -1,7 +1,7 @@
 {
   "name": "oyun-arsivim",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "description": "Windows için akıllı oyun kütüphanesi ve başlatıcı",
   "license": "MIT",

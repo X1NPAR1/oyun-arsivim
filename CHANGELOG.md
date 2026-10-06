@@ -5,6 +5,19 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini ve
 
 ## [Yayınlanmadı]
 
+## [0.9.0] - 2026-10-06
+
+### Eklendi
+
+- Aynı anda tek oyun: bir oyun açıkken başka bir oyun başlatılmak istenirse "Şu an X oynuyorsunuz" penceresi açılır; isterseniz açık oyun kapatılıp yenisi başlatılır.
+- Başlık çubuğunun sağ üstünde oval "Oyun adı · Oynanıyor" göstergesi (açılırken "Açılıyor"); tıklayınca oyunun detay sayfası açılır.
+- Performans → Geçici dosyalar: %TEMP% ve `C:\Windows\Temp` temizliği, temizlenebilir boyut gösterimi. Son bir saatte değişen ve kullanımdaki dosyalara dokunulmaz.
+
+### Düzeltildi
+
+- Minecraft Launcher "bulunamadı" hatasıyla açılmıyordu: Xbox paketlerinin uygulama kimliği yanlış okunuyordu (`<Applications>` etiketi `<Application>` sanılıyordu).
+- Sürüm notları GitHub sürüm sayfasına artık CHANGELOG'dan aktarılıyor.
+
 ## [0.8.0] - 2026-10-06
 
 ### Eklendi

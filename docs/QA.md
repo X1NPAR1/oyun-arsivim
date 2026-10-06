@@ -115,3 +115,10 @@ Kapsam hedefi: Rust çekirdek ≥ %80 (`cargo llvm-cov`, Faz 17'de zorunlu kapı
 
 - Faz 1: Tasarım sistemi henüz yok (Faz 2). Pencere, Türkçe başlık ve IPC metni doğru. Varsayılan font görülüyor → Faz 2'de giderilecek.
 - Faz 2 (`review/faz-02/`): 1 Sert dikdörtgen yok — GEÇTİ (pencere 16px, yüzeyler 22–28px) · 2 Cam/derinlik — GEÇTİ · 3 Sora/Manrope, Türkçe glifler — GEÇTİ · 4 SVG yok (test + arama) — GEÇTİ · 5 Kontrast — GEÇTİ · 6 Hiyerarşi/taşma — GEÇTİ ("İstatistikler" 64px'e sığıyor) · 7 Yüzen sidebar + özel başlık çubuğu — GEÇTİ · 8 Hareket: stagger ve yönlü geçiş kareleri akıcı — GEÇTİ.
+
+## Toplu başlatma testi (2026-10-06)
+
+| Sonuç                                               | Oyunlar                                                                                                                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Oyun süreci doğrulandı (16)                         | Poppy Playtime, RDR2, Sons Of The Forest, ETS2, Assetto Corsa, Men of War AS2, Unturned, Garry's Mod, Gates of Hell, CS:GO Legacy, CS2, KovaaK's, Crysis Remastered, Minecraft Launcher, Minecraft for Windows, Roblox |
+| Başlatıcı açıldı, kullanıcı etkileşimi bekliyor (4) | Battlefield 1 (EA app; oyun sonradan açıldı), Hearts of Iron IV (Paradox Launcher), Dying Light (Epic), VALORANT (Riot Client)                                                                                         |

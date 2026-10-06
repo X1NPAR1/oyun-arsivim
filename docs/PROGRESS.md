@@ -100,7 +100,15 @@ Durum: ⬜ başlamadı · 🟨 sürüyor · ✅ tamamlandı
 - Rust `art_analysis`: baskın renk → vurgu, logo koyuluğu → `*_meta.json`; 21 oyunda üretildi, CS2 logosu beyaz silüet (review/faz-08/ana-meta.png).
 - Geçiş kilidi 500 ms.
 
-## Faz 9 — Görsel sistemi (SteamGridDB, yedek kapak) ⬜
+## Faz 9 — Tek oyun kuralı, oynanıyor göstergesi, geçici dosya temizliği ✅ (v0.9.0)
+
+- Rust `running` modülü: çalışan/başlatılan oyun; `launch_game` başka oyun açıkken reddeder, `stop_game` yalnız oyunun eşleşen süreçlerini kapatır; `games://running` olayı.
+- Arayüz: çakışma iletişim kutusu (gerçek uygulamada doğrulandı: review/faz-09/cakisma.png), başlık çubuğunda oval "Oynanıyor" göstergesi (review/faz-09/oynaniyor.png).
+- Performans → Geçici dosyalar (`perf/temp.rs`; 1 saatten yeni ve kilitli dosyalar atlanır).
+- Minecraft Launcher düzeltmesi (Xbox `<Applications>` ayrıştırma hatası).
+- Gerçek başlatma testi (`scripts/e2e-launch-all.ps1`): 20 oyunun 16'sı oyun süreciyle doğrulandı; BF1, HOI4, Dying Light ve VALORANT kendi başlatıcılarını açtı (EA/Paradox/Epic/Riot giriş veya Oyna tıklaması bekliyor; BF1 sonradan açıldı). Test sonunda arkada süreç kalmadı.
+
+## Faz 10 — Görsel sistemi (SteamGridDB, yedek kapak) ⬜
 
 ## Faz 10 — Kütüphane sayfası ⬜
 

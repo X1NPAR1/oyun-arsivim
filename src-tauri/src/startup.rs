@@ -209,6 +209,7 @@ pub fn run(app: &AppHandle, data_dir: &Path) -> Result<SharedState, String> {
         db: Mutex::new(conn),
         artwork,
         scanning: AtomicBool::new(false),
+        running: Mutex::new(crate::running::Running::default()),
     }))
 }
 
